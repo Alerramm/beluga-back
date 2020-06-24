@@ -1,0 +1,57 @@
+.close_tramo{
+    cursor: pointer;
+}
+
+label{
+    font-size: 13px;
+}
+
+.btn-primary{
+    border-color:#033C61;
+    background-color:#033C61;
+}
+
+.custom-control-input:checked~.custom-control-label::before {
+    border-color:#033C61;
+    background-color:#033C61;
+}
+
+input{
+    font-size: 12px !important;
+}
+
+select{
+    font-size: 12px !important;
+}
+
+.addTramo{
+    position: absolute;
+    bottom: 0px;
+}
+
+button{
+    font-size: 12px !important;
+}
+
+hr{
+    border: 1px solid grey;
+}
+
+.loading_shadow{
+    background-color: rgba(0,0,0,0.1);
+    position: absolute;
+    width: 90%;
+    height: 250px;
+    border-radius: 10px;
+
+}
+
+.loading_shadow > div {
+    padding-top: 10px;
+    padding-right: 80px;
+}
+
+.spinner_border{
+    left:0px;
+    bottom:0px;
+}
