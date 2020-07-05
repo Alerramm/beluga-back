@@ -77,7 +77,7 @@ if (empty($faltantes)) {
                                                 subtotal='$subtotal ', 
                                                 iva='$iva',
                                                 total= '$total',
-                                                idTramo ='$idTramo',
+                                                idTramo =$idTramo,
                                                 observacion = '$observacion',
                                                 estatus = '$estatus',
                                                 comprobado = '$comprobado',
@@ -86,7 +86,7 @@ if (empty($faltantes)) {
                                                 fechaAutorizacion='$fechaAutorizacion',
                                                 montoAprobado = '$montoAprobado'
                                                 
-                                                WHERE idViaje = '$idViaje' AND tipo ='$tipo'";
+                                                WHERE idViaje = $idViaje AND tipo ='$tipo'";
 
 
 
@@ -95,7 +95,7 @@ if (empty($faltantes)) {
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
 
 
-                $payload = ["sql" => "Exito Update record successfully", "id" => $rowActualizado["subtotal"]];
+                $payload = ["sql" => "Exito Update record successfully", "id" => $row["id"]];
 
                 respuesta(200, 200,  "Respuesta exitosa", $payload);
             } else {

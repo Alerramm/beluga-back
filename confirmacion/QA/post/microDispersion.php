@@ -103,9 +103,9 @@ if (empty($faltantes)) {
                 $updateSubTotalGastos = $subtotalGastos + $subtotal;
                 $updateivaGastos = $ivaGastos + $iva;
                 $updateTotalGastos = $totalGastos + $total;
-                $payloadGastosInsert [] = ["GastosInsert" => " Exito New Travel record created successfully " . $insert_id];
+               $payloadGastosInsert [] = ["GastosInsert" => " Exito New Travel record created successfully " . $insert_id];
                 $payloadGastosInsert [] = ["Operacion SubTotales" => " Total de la suma de Subtotales " . $updateSubTotalGastos];
-                $payloadGastosInsert [] = ["Operacion Iva" => " Total de la suma de Iva " . $updateivaGastos];
+               $payloadGastosInsert [] = ["Operacion Iva" => " Total de la suma de Iva " . $updateivaGastos];
                 $payloadGastosInsert [] = ["Operacion Total" => " Total de la suma de Total " . $updateTotalGastos];
 
                 if($updateTotalGastos > $montoAprobadoGastos){
@@ -120,16 +120,16 @@ if (empty($faltantes)) {
 
                         $payloadGastosInsert [] = ["SQL" => " Dispersion Insertada con Exito" . $last_id];
     
-                            if($updateTotalGastos === $montoAprobadoGastos){
-                                $estatus = "completo" ;
+                            if($updateTotalGastos == $montoAprobadoGastos){
+                                $estatus2 = "Completo" ;
     
     
                             }elseif ($updateTotalGastos < $montoAprobadoGastos){
-                                $estatus = "parcial" ;
+                                $estatus2 = "Parcial" ;
                             }
                            
                             
-                            $updateEstatus =  "UPDATE gastos SET subtotal='$updateSubTotalGastos', iva='$updateivaGastos', total= '$updateTotalGastos', estatus = '$estatus' WHERE id = '$idGasto'" ;
+                            $updateEstatus =  "UPDATE gastos SET subtotal='$updateSubTotalGastos', iva='$updateivaGastos', total= '$updateTotalGastos', estatus = '$estatus2' WHERE id = '$idGasto'" ;
 
                                             
 
@@ -158,6 +158,9 @@ if (empty($faltantes)) {
             }
 
 
- } $payload = ["Faltantes" => $faltantes];
+ } 
+
+}else{
+    $payload = ["Faltantes" => $faltantes];
     respuesta(400, 400, "Hay un error con el servidor. Llama a central Error-TARE1", $payload);
 }

@@ -209,8 +209,36 @@ if (empty($faltantes)) {
     $res = "Error: " . $insertU . "<br>" . $conexion->error;
     $dataU[] = $res . " Algo paso";
   }
+
+  
+  
+
   if ($respuestaFinal == 0 && $respuestaFinalViaje == 200 && $respuestaFinalUpdate == 0) {
     $respuestaFinal = 200;
+
+    $payloadGastosInsert [];
+                $insertT =  "INSERT INTO tramos () VALUES ();
+                if ($conexion->query($insertT) === TRUE) { 
+                    $last_id = $conexion->insert_id;  
+                    
+                }
+
+
+               
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
   } else {
     $respuestaFinal = 500;
   }
