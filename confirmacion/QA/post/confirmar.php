@@ -42,7 +42,7 @@ foreach ($datosArreglo as &$datos) {
     $transito = $datos["transito"];
     $maniobras = $datos["maniobras"];
     $direccion_cliente  =  $datos["direccion_cliente"];
-
+    $datosgastos = $datos["gastos"];
 
 
 
@@ -89,7 +89,25 @@ foreach ($datosArreglo as &$datos) {
                 $operador = $rowViaje['operador'];
                 $destino = $rowViaje['destino'];
                 $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,PREdiesel,Precasetas,PREalimentos,PREcomision,PREtransito,PREmaniobras,solicita) VALUES ('$fecha_carga', '$operador','$destino','$viajeOperaciones','$disel','$casetas','$alimentos','$comision','$transito','$maniobras','')";
+                  
+                foreach ($datosgastos as &$datos2) {
+                    //const 
+                    $faltantes = [];
+                    //datos Request
+                    $tipo = $datos2["tipo"];
+                    $presupuesto = $datos2["presupuesto"];
+                $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
 
+                if ($conexion->query($insertDesgloseAuth2) === TRUE) { 
+                         
+                    $last_id = $conexion->insert_id;   
+                    $payloadGastosInsert [] = ["GastosInsert" => " Exito New Travel record created successfully " . $last_id];
+
+                } else {
+                    $payloadGastosInsert [] = ["sql" => "Error: " . "<br>" . $conexion->error];
+                   
+                }
+                }
 
                 if ($conexion->query($insertDesgloseAuth) === TRUE) {
                     $last_id = $conexion->insert_id;
@@ -122,7 +140,7 @@ foreach ($datosArreglo as &$datos) {
                                 $updateViaje = "UPDATE viajes SET estatus = 'Gastos' where id = $idViaje";
                                 if ($conexion->query($updateViaje) === TRUE) {
                                     $payloadViaje = ["sqlEstatusUpdate" => $idViaje];
-                                    $payloadFinal[] = array_merge($payloadAuth, $payloadItinerarioUnidades, $payloadItinerarioConductores, $payloadOperaciones, $payloadViaje, ["viaje operaciones" => $viajeOperaciones]);
+                                    $payloadFinal[] = array_merge($payloadGastosInsert, $payloadAuth, $payloadItinerarioUnidades, $payloadItinerarioConductores, $payloadOperaciones, $payloadViaje, ["viaje operaciones" => $viajeOperaciones]);
                                     $exitoso = true;
                                 } else {
                                     $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
