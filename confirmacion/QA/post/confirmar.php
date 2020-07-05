@@ -89,74 +89,57 @@ foreach ($datosArreglo as &$datos) {
                 $operador = $rowViaje['operador'];
                 $destino = $rowViaje['destino'];
                 $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,PREdiesel,Precasetas,PREalimentos,PREcomision,PREtransito,PREmaniobras,solicita) VALUES ('$fecha_carga', '$operador','$destino','$viajeOperaciones','$disel','$casetas','$alimentos','$comision','$transito','$maniobras','')";
-                  
+
                 foreach ($datosgastos as &$datos2) {
                     //const 
                     $faltantes = [];
                     //datos Request
                     $tipo = $datos2["tipo"];
                     $presupuesto = $datos2["presupuesto"];
-                $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
+                    $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
 
-                if ($conexion->query($insertDesgloseAuth2) === TRUE) { 
-                         
-                    $last_id = $conexion->insert_id;   
-                    $payloadGastosInsert [] = ["GastosInsert" => " Exito New Travel record created successfully " . $last_id];
+                    if ($conexion->query($insertDesgloseAuth2) === TRUE) {
 
-                } else {
-                    $payloadGastosInsert [] = ["sql" => "Error: " . "<br>" . $conexion->error];
-                   
-                }
+                        $last_id = $conexion->insert_id;
+                        $payloadGastosInsert[] = ["GastosInsert" => " Exito New Travel record created successfully " . $last_id];
+                    } else {
+                        $payloadGastosInsert[] = ["sql" => "Error: " . "<br>" . $conexion->error];
+                    }
                 }
 
                 if ($conexion->query($insertDesgloseAuth) === TRUE) {
                     $last_id = $conexion->insert_id;
                     $payloadAuth = ["sqlEstatusAuth" => " Exito New Travel record created successfully " . $last_id];
-                    $fecha_disponibilidad = $rowViaje['fecha_disponibilidad'];
-                    $unidad = substr($rowViaje['unidad'], 0, strpos($rowViaje['unidad'], ' '));
-                    $insertItinerarioUnidades =  "INSERT INTO intinerarioUnidades (fechaInicial,fechaFinal,camion,motivo) values 
-                ('$fecha_carga','$fecha_disponibilidad','$unidad','Viaje')";
 
-                    if ($conexion->query($insertItinerarioUnidades) === TRUE) {
-                        $last_id = $conexion->insert_id;
-                        $payloadItinerarioUnidades = ["sqlEstatusItinerarioUnidades" => " Exito New Travel record created successfully " . $last_id];
-                        $insertItinerarioConductores =  "INSERT INTO intinerarioConductores (fechaInicial,fechaFinal,nombre,motivo) values 
-                    ('$fecha_carga','$fecha_disponibilidad','$operador','Viaje')";
-                        if ($conexion->query($insertItinerarioConductores) === TRUE) {
-                            $last_id = $conexion->insert_id;
-                            $payloadItinerarioConductores = ["sqlEstatusItinerarioConductores" => " Exito New Travel record created successfully " . $last_id];
-                            $cliente = $rowViaje['cliente'];
-                            $fecha_entrega = $rowViaje['fecha_entrega'];
-                            $distancia = $rowViaje['distancia'];
-                            $hora_carga = date($fecha_carga, "H:i");
-                            $hora_entrega = date($hora_entrega, "H:i");
-                            $entrega = $rowViaje["ruta"];
-                            $insertOperaciones =  "INSERT INTO operaciones (viaje,fecha,cliente,cargar,unidad,operador,destino,fechaEntrega,entregar,status,status_factura,kms,precio,cargar_hora,horaEntrega,diesel,casetas,comision,alimentos,transito,revision,dias,maniobras,idViaje) VALUES 
+
+
+
+
+
+                    $cliente = $rowViaje['cliente'];
+                    $fecha_entrega = $rowViaje['fecha_entrega'];
+                    $distancia = $rowViaje['distancia'];
+                    $hora_carga = date($fecha_carga, "H:i");
+                    $hora_entrega = date($hora_entrega, "H:i");
+                    $entrega = $rowViaje["ruta"];
+                    $insertOperaciones =  "INSERT INTO operaciones (viaje,fecha,cliente,cargar,unidad,operador,destino,fechaEntrega,entregar,status,status_factura,kms,precio,cargar_hora,horaEntrega,diesel,casetas,comision,alimentos,transito,revision,dias,maniobras,idViaje) VALUES 
                         ('$viajeOperaciones','$fecha_carga','$cliente','$direccion_cliente','$unidad','$operador','$destino','$fecha_entrega',
                         '$entrega','99','38','$distancia','$precio','$hora_carga','$hora_entrega','0','0','0','0','0','$fecha_disponibilidad','$dias','0','$idViaje')";
-                            if ($conexion->query($insertOperaciones) === TRUE) {
-                                $last_id = $conexion->insert_id;
-                                $payloadOperaciones = ["sqlEstatusOperaciones" => " Exito New Travel record created successfully " . $last_id];
-                                $updateViaje = "UPDATE viajes SET estatus = 'Gastos' where id = $idViaje";
-                                if ($conexion->query($updateViaje) === TRUE) {
-                                    $payloadViaje = ["sqlEstatusUpdate" => $idViaje];
-                                    $payloadFinal[] = array_merge($payloadGastosInsert, $payloadAuth, $payloadItinerarioUnidades, $payloadItinerarioConductores, $payloadOperaciones, $payloadViaje, ["viaje operaciones" => $viajeOperaciones]);
-                                    $exitoso = true;
-                                } else {
-                                    $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                                    respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-UPDATE VIAJE", $payload);
-                                }
-                            } else {
-                                $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                                respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INSERT OPERACIONES", $payload);
-                            }
+                    if ($conexion->query($insertOperaciones) === TRUE) {
+                        $last_id = $conexion->insert_id;
+                        $payloadOperaciones = ["sqlEstatusOperaciones" => " Exito New Travel record created successfully " . $last_id];
+                        $updateViaje = "UPDATE viajes SET estatus = 'Gastos' where id = $idViaje";
+                        if ($conexion->query($updateViaje) === TRUE) {
+                            $payloadViaje = ["sqlEstatusUpdate" => $idViaje];
+                            $payloadFinal[] = array_merge($payloadGastosInsert, $payloadAuth, $payloadOperaciones, $payloadViaje, ["viaje operaciones" => $viajeOperaciones]);
+                            $exitoso = true;
                         } else {
                             $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                            respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INSERT ITINERARIO CONDUCTORES", $payload);
+                            respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-UPDATE VIAJE", $payload);
                         }
                     } else {
                         $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                        respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INSERT ITINERARIO UNIDADES", $payload);
+                        respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INSERT OPERACIONES", $payload);
                     }
                 } else {
                     $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];

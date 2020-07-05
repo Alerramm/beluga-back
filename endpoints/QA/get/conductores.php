@@ -28,7 +28,7 @@ if ($fechaInicialV == null || $fechaFinalV == null) {
   $consultaDisponibilidad = "SELECT DISTINCT(nombre) FROM intinerarioConductores WHERE (fechaInicial  <= '$fechaInicialV' AND fechaFinal >= '$fechaFinalV') OR (fechaInicial BETWEEN '$fechaInicialV' AND '$fechaFinalV') OR (fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV')";
   //$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
   //Query para obtener clientes
-  $consulta =  "SELECT DISTINCT(nombre) FROM empleados where puesto = 'OPERADOR' AND activo = 1";
+  $consulta =  "SELECT nombre FROM usuarios where perfil = 'OPERADOR'";
   $conductores =  mysqli_query($conexion, $consulta);
   $conductoresD =  mysqli_query($conexion, $consultaDisponibilidad);
   while ($row2 = $conductoresD->fetch_array(MYSQLI_ASSOC)) {

@@ -117,17 +117,9 @@ if (empty($faltantes)) {
                     }
                 }
             }
-            //Update Cajas Operaciones
-            $updateCajasOperaciones =  "UPDATE operaciones SET numEmbarque='$numEmbarque', Cajas ='$cajasO', checkList = '$checklist'  WHERE idViaje = $idViaje;";
-            if ($conexion->query($updateCajasOperaciones) === TRUE) {
-                $payloadCajasOperaciones = ["sqlCajasOperaciones" => "Exito Update record successfully", " query" => $updateCajasOperaciones];
-            } else {
-                $payloadCajasOperaciones = ["sqlCajasOperaciones" => "Error: " . $updateCajasOperaciones . "<br>" . $conexion->error];
-                $siguiente = false;
-            }
 
             //Update Estatus
-            $updateEstatus =  "UPDATE viajes SET estatus='En trayecto'  WHERE id = $idViaje;";
+            $updateEstatus =  "UPDATE viajes SET estatus='En trayecto', checklist = '$checklist'  WHERE id = $idViaje;";
             if ($conexion->query($updateEstatus) === TRUE) {
                 $payloadEstatus = ["sqlEstatus" => " Exito Update record successfully"];
             } else {
@@ -145,10 +137,10 @@ if (empty($faltantes)) {
             }
 
             if ($siguiente) {
-                $payload = array_merge($payloadEstatus, $payloadCajasOperaciones, $payloadCajasTramos, $payloadEstatusTramos);
+                $payload = array_merge($payloadEstatus, $payloadCajasTramos, $payloadEstatusTramos);
                 respuesta(200, 200, "Respuesta exitosa", $payload);
             } else {
-                $payload = array_merge($payloadEstatus, $payloadCajasOperaciones, $payloadCajasTramos, $payloadEstatusTramos);
+                $payload = array_merge($payloadEstatus, $payloadCajasTramos, $payloadEstatusTramos);
                 respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-CLUPD", $payload);
             }
         }

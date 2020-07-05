@@ -42,6 +42,7 @@ $checkFecha = $datos["checkValidDate"];
 $saveTrip = $datos["saveTrip"];
 $multidestino = $datos["isMultidestiny"];
 $routeName = $datos["routeName"];
+$casetasToll = $datos["casetas"];
 
 if ($base_de_operaciones == "") {
   array_push($faltantes, 'Base de Operaciones');
@@ -82,6 +83,9 @@ if ($total_tiempo_formato == "") {
 if ($operador == "") {
   array_push($faltantes, 'Operador');
 }
+if ($casetasToll == "") {
+  array_push($faltantes, 'Casetas viaje');
+}
 
 if (empty($faltantes)) {
 
@@ -90,21 +94,23 @@ if (empty($faltantes)) {
   $entrega = "aun nose";
   $estatus = "Pendiente";
 
- /*  $insertV = "INSERT INTO viaje VALUES 
+  /*  $insertV = "INSERT INTO viaje VALUES 
  (null,'$base_de_operaciones','$cliente','$diesel','$fecha_salida','$fecha_carga','$fecha_disponibilidad','$fechaEntregaTemporal',
  '$isRoundTrip','$unidad','$numero_de_tramos','$tipoDeUnidad','$tonelaje','$total_casetas','$total_distancia',
  '$ejes','$total_tiempo','$total_tiempo_formato','$operador','$entrega','$estatus','$checkFecha','')"; */
- $insertV =  "INSERT INTO viajes VALUES 
+  $insertV =  "INSERT INTO viajes VALUES 
          (null,'$base_de_operaciones','$cliente','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
          '$fecha_disponibilidad','$tipoDeUnidad','$tonelaje','$unidad','$operador','$numero_de_tramos','$diesel','$total_distancia',
-         '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','$saveTrip',
-         '$estatus')";
+         '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','$saveTrip',false,'$estatus','Pendiente')";
 
   //Insercion de viaje
   if ($conexion->query($insertV) === TRUE) {
     $last_id = $conexion->insert_id;
     $respuestaV = 200;
     $dataV[] = " Exito New Travel record created successfully " . $last_id;
+    $idviaje = $last_id;
+
+
 
     if ($saveTrip) {
       $name = $datos["tripName"];
@@ -122,6 +128,25 @@ if (empty($faltantes)) {
     } else {
       $respuestaT = 500;
       $dataT[] = " Sin guardar";
+    }
+
+    $insertItinerarioConductores =  "INSERT INTO intinerarioConductores (fechaInicial,fechaFinal,nombre,motivo) values 
+    ('$fecha_salida','$fecha_disponibilidad','$operador','Viaje')";
+    if ($conexion->query($insertItinerarioConductores) === TRUE) {
+      $last_id = $conexion->insert_id;
+      $dataFinal["itinerarioConductores"] = ["sqlEstatusItinerarioConductores" => " Exito New Travel record created successfully " . $last_id];
+    } else {
+      $dataFinal["itinerarioConductores"] = ["sql" => "Error: <br>" . $conexion->error];
+    }
+    $unidadA = substr($unidad, 0, strpos($unidad, ' '));
+    $insertItinerarioUnidades =  "INSERT INTO intinerarioUnidades (fechaInicial,fechaFinal,camion,motivo) values 
+('$fecha_salida','$fecha_disponibilidad','$unidadA','Viaje')";
+
+    if ($conexion->query($insertItinerarioUnidades) === TRUE) {
+      $last_id = $conexion->insert_id;
+      $dataFinal["itinerarioUnidades"] = ["sqlEstatusItinerarioUnidades" => " Exito New Travel record created successfully " . $last_id];
+    } else {
+      $dataFinal["itinerarioUnidades"]  = ["sql" => "Error: <br>" . $conexion->error];
     }
   } else {
     $respuestaV = 500;
@@ -147,7 +172,8 @@ if (empty($faltantes)) {
     "statusSaveTrip" => $respuestaFinalTrip
   ];
   $dataFinal["trip"] = $dataT;
-  //Insercion de 
+
+  //Insercion de tramos
   $contTramos = 1;
   foreach ($datos["rutas"] as &$valor) {
     $indexRoute = $contTramos;
@@ -170,14 +196,27 @@ if (empty($faltantes)) {
     $ciudad =  $valor["ciudad"];
     $observaciones = $valor["observaciones"];
     $tipo = "aun nose";
-    $idviaje = $last_id;
+
     /* $insertT =  "INSERT INTO tramos VALUES 
   (null,$indexRoute,'$casetas','$destino','$distancia','$fecha','$fechaLabel',' $load_time','$origen',
   '$tiempo','$waypoints','$tipo','$idviaje','$observaciones','Pendiente','','','$ciudad')"; */
     $insertT =  "INSERT INTO tramos VALUES 
     (null,'$idviaje',$indexRoute,'$fecha','$origen','$ciudad','$destino',' $load_time','$tiempo','$casetas','$distancia',
-    '$observaciones','$waypoints','','','Confirmado')";
+    '$observaciones','$waypoints','Pendiente')";
     if ($conexion->query($insertT) === TRUE) {
+      $last_id_trip = $conexion->insert_id;
+      foreach ($casetasToll[$contTramos - 1] as &$casetas) {
+        $name = $casetas["name"];
+        $costoC = $casetas["cashCost"];
+        $insertCasetas = "INSERT INTO casetas(id_tramo, nombre, precio) VALUES ($last_id_trip,'$name','$costoC')";
+        if ($conexion->query($insertCasetas) === TRUE) {
+          $dataFinal["casetas"]  = "Index Route " . $indexRoute . " Exito New record created successfully";
+        } else {
+          $respuesta = 500;
+          $res = "Error: " . $insertCasetas . "<br>" . $conexion->error;
+          $dataFinal["casetas"] = "Index Route " . $indexRoute . $res . " Algo paso";
+        }
+      }
       $respuesta = 200;
       $data[] = "Index Route " . $indexRoute . " Exito New record created successfully";
     } else {
@@ -193,12 +232,12 @@ if (empty($faltantes)) {
   $total_tiempo = $total_tiempo - 1;
   //Update
   $insertU =  "UPDATE viajes SET fecha_entrega='$fechaEntregaTemporal',destino='$entrega',ruta='$entregaTemporal',tiempo ='$total_tiempo' WHERE id = $idviaje;";
-  if($multidestino){
+  if ($multidestino) {
     $insertU =  "UPDATE viajes SET fecha_entrega='$fechaEntregaTemporal',destino='Multidestino',tiempo ='$total_tiempo' WHERE id = $idviaje;";
   }
-  
+
   if ($conexion->query($insertU) === TRUE) {
-    $dataU[] = " Exito Update record successfully";
+    $dataU[] = " Exito Update record successfully" . $insertU;
   } else {
     $respuestaFinalUpdate == 500;
     $res = "Error: " . $insertU . "<br>" . $conexion->error;

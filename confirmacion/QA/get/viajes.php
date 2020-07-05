@@ -55,9 +55,7 @@ if (empty($faltantes)) {
             $dateE = new DateTime($row["fecha_entrega"]);
             $row["fechaEntregaTemporal"] = $dateE->format('Y-m-d H:i');
             $idViaje = $row["id"];
-            $consultaTempOperaciones = mysqli_query($conexion, "SELECT confirmaViaje from tempOperacion WHERE idViaje = $idViaje");
-            $tempOperacion = mysqli_fetch_array($consultaTempOperaciones, MYSQLI_ASSOC);
-            $row["estatusOperador"] =  $tempOperacion["confirmaViaje"];
+            $row["estatusOperador"] =  $row["estatus_operador"];
             $dataViajes[] = $row;
         }
         //Response

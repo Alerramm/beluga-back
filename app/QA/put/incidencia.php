@@ -71,10 +71,17 @@ if (empty($faltantes)) {
                     $incidenciasTramoResponse[] = $row;
                 }
 
+                $updateEstatus =  "UPDATE tramos SET estatus='Bloqueado' WHERE id = $idTramo;";
+                if ($conexion->query($updateEstatus) === TRUE) {
 
-                $payload = ["sql" => "Exito Insert record successfully", "incidencias" => $incidenciasTramoResponse];
+                    $payload = ["sql" => "Exito Insert record successfully", "incidencias" => $incidenciasTramoResponse, "updateTramo" => "Exito update"];
 
-                respuesta(200, 200,  "Respuesta exitosa", $payload);
+                    respuesta(200, 200,  "Respuesta exitosa", $payload);
+                    // respuesta(400, 404, "Hubo un rechazo. Llama a central para poder continuar con tu viaje.", $payload);
+                } else {
+                    $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                    respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
+                }
             } else {
                 $payload = ["sql" => "Error: " . $insertIncidencia . "<br>" . $conexion->error];
                 respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INUPD", $payload);

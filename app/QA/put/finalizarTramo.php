@@ -111,6 +111,19 @@ if (empty($faltantes)) {
                         respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
                     }
                 } else {
+                    $consultaTramoEntregaFinal = "SELECT COUNT(1) FROM tramos where idViaje = (Select idViaje from tramos where id = 4542) and estatus = 'Pendiente' and
+                    (Select COUNT(1) from viajes where id = (Select idViaje from tramos where id = 4542) and redondo = true) > 0;";
+                    $tramoEntregaFinal =  mysqli_query($conexion, $consultaTramoEntregaFinal);
+                    $tramoEntregaFinalR = mysqli_fetch_array($tramoEntregaFinal, MYSQLI_ASSOC);
+                    if ($tramoEntregaFinalR["COUNT(1)"] == 2) {
+                        $updateEstatusViaje =  "UPDATE viajes SET estatus='En regreso' WHERE id = $idViaje;";
+                        if ($conexion->query($updateEstatusViaje) === TRUE) {
+                            $payloadUpdateViaje = ["TramoEntregaFinal" => $tramoEntregaFinalR];
+                        } else {
+                            $payloadUpdateViaje = ["TramoEntregaFinal" => "Error: " . $updateEstatusViaje . "<br>" . $conexion->error];
+                        }
+                    }
+
                     $tramoFin = true;
                     foreach ($embarques as &$embarque) {
                         $numEmbarque = $embarque["numEmbarque"];
@@ -166,22 +179,22 @@ if (empty($faltantes)) {
                         $updateEstatus =  "UPDATE tramos SET estatus='Bloqueado' WHERE id = $idTramo;";
                         if ($conexion->query($updateEstatus) === TRUE) {
 
-                            $payload = ["sql" => "Exito Update record successfully", "idTramo" => $rowActualizado["id"], "tramos" => $tramos];
+                            $payload = ["TramoEntregaFinal" => $tramoEntregaFinalR, "sql" => "Exito Update record successfully", "idTramo" => $rowActualizado["id"], "tramos" => $tramos];
 
                             respuesta(400, 404, "Hubo un rechazo. Llama a central para poder continuar con tu viaje.", $payload);
                         } else {
-                            $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                            $payload = ["TramoEntregaFinal" => $tramoEntregaFinalR, "sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
                             respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
                         }
                     } else {
                         $updateEstatus =  "UPDATE tramos SET estatus='Finalizado' WHERE id = $idTramo;";
                         if ($conexion->query($updateEstatus) === TRUE) {
 
-                            $payload = ["sql" => "Exito Update record successfully", "idTramo" => $rowActualizado["id"], "tramos" => $tramos];
+                            $payload = ["TramoEntregaFinal" => $tramoEntregaFinalR, "sql" => "Exito Update record successfully", "idTramo" => $rowActualizado["id"], "tramos" => $tramos];
 
                             respuesta(200, 200, "Respuesta exitosa", $payload);
                         } else {
-                            $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                            $payload = ["TramoEntregaFinal" => $tramoEntregaFinalR, "sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
                             respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
                         }
                     }

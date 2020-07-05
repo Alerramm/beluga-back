@@ -50,7 +50,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Analisis de la informacion
-        $consulta =  "SELECT *  FROM tempOperacion where idViaje = $id";
+        $consulta =  "SELECT *  FROM viajes where id = $id";
         $viajes =  mysqli_query($conexion, $consulta);
         $row = mysqli_fetch_array($viajes, MYSQLI_ASSOC);
 
@@ -58,7 +58,7 @@ if (empty($faltantes)) {
             respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TATOD" . $id, []);
         } else {
             //Update
-            $updateEstatus =  "UPDATE tempOperacion SET confirmaViaje='$opcion' WHERE idViaje = $id;";
+            $updateEstatus =  "UPDATE viajes SET estatus_operador='$opcion' WHERE id = $id;";
             if ($conexion->query($updateEstatus) === TRUE) {
                 $viajesActualizados =  mysqli_query($conexion, $consulta);
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
