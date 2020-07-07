@@ -67,34 +67,104 @@ INSERT INTO dbs304381.categoriaproductos (nombrecategoria, desccateg) VALUES ('V
 INSERT INTO dbs304381.categoriaproductos (nombrecategoria, desccateg) VALUES ('Textil','Alimentos');
 
 
-
 CREATE TABLE dbs304381.constantes (
 	idTipoConstante int (11) NOT NULL AUTO_INCREMENT,
 	nombreConstante varchar (32),
 	descripcion varchar (50),
 	contennidoConstante varchar (30),
 
-	PRIMARY KEY (idTIpoADecuacion)
+	PRIMARY KEY (idTipoConstante)
+);
+
+INSERT INTO dbs304381.constantes (nombreConstante,descripcion,contennidoConstante) VALUES ('costoDiesel', 'costo al dia del diesel', '21');
+
+SELECT contennidoConstante FROM dbs304381.constantes WHERE idTipoConstante=1;
+
+
+
+
+
+CREATE TABLE dbs304381.gruposClasificacion (
+	idGrupo int(11) NOT NULL AUTO_INCREMENT,
+	nombreGrupo VARCHAR (20) ,
+	PRIMARY KEY (idGrupo)
 )
-CREATE TABLE dbs304381.GruposRendimiento (
-	Grupo int (11) ,
-	rendimiento varchar (20)
+
+CREATE TABLE dbs304381.Kilometros(
+	idKilometros int(11) NOT NULL AUTO_INCREMENT,
+	idGrupo int(11),
+	rendimiento varchar (20),
+	numDias varchar (20),
+	comision varchar (20),
+	viaticos varchar (20),
+	utilidadPremium varchar (20),
+	gastoPremium varchar (20),
+
+	PRIMARY KEY (idKilometros)
 )
 
-
-INSERT INTO dbs304381.categoriaproductos (nombreConstante,descripcion,contennidoConstante) VALUES ('costoxdia','El costo por dia ', '400');
-INSERT INTO dbs304381.categoriaproductos (nombreConstante,descripcion,contennidoConstante) VALUES ('costoxdia','El costo por dia ', '400');
+INSERT INTO `Kilometros` (`idKilometros`, `idGrupo`, `rendimiento`, `numDias`, `comision`, `viaticos`, `utilidadPremium`, `gastoPremium`) VALUES (NULL, '1', '4.88 ', '1', '400', '0', '76', '24'), (NULL, '1', '4.88', '1', '400', '0', '76', '24'), (NULL, '1', '4.88', '1', '400', '0', '82', '18'), (NULL, '2', '7.5', '1.5', '600', '0', '82', '18'), (NULL, '2', '7.5', '1.5', '600', '0', '78', '22'), (NULL, '2', '7.5', '1.5', '600', '0', '78', '22'), (NULL, '3', '7.5', '1.5', '600', '150', '74', '26'), (NULL, '3', '7.5', '1.5', '600', '150', '76', '24'), (NULL, '3', '7.5', '1.5', '600', '150', '77', '23'), (NULL, '4', '7.5', '2.0', '800', '300', '75', '25'), (NULL, '4', '7.5', '2.0', '800', '300', '75', '25'), (NULL, '4', '7.5', '2.5', '1000', '450', '76', '24'), (NULL, '5', '7.5', '3.0', '1200', '450', '75', '25'), (NULL, '5', '7.5', '3.0', '1200', '450', '75', '25'), (NULL, '5', '7.5', '3.5', '1400', '525', '76', '24'), (NULL, '6', '7.5', '4.0', '1600', '600', '70', '30'), (NULL, '6', '7.5', '4.0', '1600', '600', '70', '30'), (NULL, '6', '7.5', '4.5', '1800', '675', '74', '26'), (NULL, '7', '7.5', '5.5', '2200', '825', '75', '25'), (NULL, '7', '7.5', '7.0', '2800', '1050', '72', '28'), (NULL, '7', '7.5', '8.5', '3400', '1275', '74', '26');
 
 
 
-INSERT INTO dbs304381.GruposRendimiento ('A','4.875') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('B','7.5') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('C','7.5') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('D','') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('E','') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('F','') VALUES ();
-INSERT INTO dbs304381.GruposRendimiento ('G','')  VALUES ();
 
+
+
+
+
+
+
+
+
+CREATE TABLE dbs304381.serviciosAdicionales(
+	idServicioAdicional  int (11) NOT NULL AUTO_INCREMENT,
+	descripcion varchar (30),
+	idViaje varchar (20),
+	PRIMARY KEY (idServicioAdicional))
+
+
+CREATE TABLE dbs304381.mercanciaAsegurada(
+	idMercanciaAsegurada int (11) NOT NULL AUTO_INCREMENT,
+	idServicioAdicional  int (11) ,
+	monto int (11),
+	precio int (11),
+
+	PRIMARY KEY (idMercanciaAsegurada))
+
+CREATE TABLE dbs304381.maniobras(
+	idManiobras int (11) NOT NULL AUTO_INCREMENT,
+	idServicioAdicional  int (11) ,
+	numeroCarga int (11),
+	numeroEntrega int (11),
+	precio int (11),
+	PRIMARY KEY (idManiobras))
+
+CREATE TABLE dbs304381.seguridadAdicional(
+	idseguridadAdicional int (11) NOT NULL AUTO_INCREMENT,
+	idServicioAdicional  int (11) ,
+	tipo int (11),
+	precio int (11),
+
+	PRIMARY KEY (idseguridadAdicional))	
+
+CREATE TABLE dbs304381.custodia(
+	idcustodia int (11) NOT NULL AUTO_INCREMENT,
+	idServicioAdicional  int (11) ,
+	km int (11),
+	precio int (11),
+
+	PRIMARY KEY (idcustodia))
+
+CREATE TABLE  dbs304381.productosByViaje (
+	idProductoByViaje int (11) NOT NULL AUTO_INCREMENT,
+	idViaje varchar (30),
+	peso varchar (20),
+	largo varchar (20),
+	ancho varchar (20),
+	alto varchar (20),
+	descripcion varchar (30),
+	PRIMARY KEY (idProductoByViaje)
+)
 
 
 
