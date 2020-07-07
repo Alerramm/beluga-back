@@ -264,6 +264,10 @@ if ($total_tiempo_formato == "") {
 
 
 
+
+
+
+
                                                             $payloadGastosInsert [] = ["TramosCompleto" => " Tramos agregados Error " . $last_id_trip];
 
 
@@ -461,9 +465,6 @@ if ($total_tiempo_formato == "") {
                                               }else{
                                                   $payloadGastosInsert [] = ["tramosInsert" => " Error al insertar tramo " . $last_id];
                                               }
-
-
-
                                                     $payloadGastosInsert [] = ["TramosCompleto" => " Tramos agregados Error " . $last_id_trip];
 
 
@@ -522,7 +523,7 @@ if ($total_tiempo_formato == "") {
                                                               $precio=$datosServiciosAdicionales["custodia"]["precio"];
 
 
-                                                             // $insertT =  "INSERT INTO custodia (idServicioAdicional,km,precio) VALUES ($last_id,$km,$precio)";
+                                                              $insertT =  "INSERT INTO custodia (idServicioAdicional,km,precio) VALUES ($last_id,$km,$precio)";
 
                                                               if ($conexion->query($insertT) === TRUE) { 
                                                                   $payloadGastosInsert [] = ["Agregarcustodia" => " Exito New Travel record created successfully " . $insert_id];
@@ -552,8 +553,11 @@ if ($total_tiempo_formato == "") {
                                                               //aqui Continua el flujo parte 2
 
 
-
-
+                                                          
+                                                        }else{
+                                                              $payloadGastosInsert [] = ["updateSuccess" => " Error al insertar servicio adicional " . $insert_id];
+                                                            }        
+          
 
 
 
@@ -562,7 +566,7 @@ if ($total_tiempo_formato == "") {
                                                   }        
 
 
-
+                                                }
                                             } else { 
                                               $payloadGastosInsert [] = ["ViajeInsert" => " Error al insertar viaje " . $last_id];
                                             }  
@@ -575,9 +579,9 @@ if ($total_tiempo_formato == "") {
         $payloadGastosInsert [] = ["Select cliente" => " Error al buscar cliente" . $cliente];
         respuesta(404, 404, "Error al seleccionar cliente", $payloadGastosInsert);
       } 
-    } 
-    
+   
   }else{
       $payload = ["Faltantes" => $faltantes];
       respuesta(400, 400, "Hay un error con el servidor. Llama a central Error-TARE1", $payloadGastosInsert);
   }
+}
