@@ -64,7 +64,7 @@ if (empty($faltantes)) {
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
 
 
-                $payload = ["sql" => "Exito Update record successfully", "id" => $rowActualizado["idViaje"], "confirmaViaje" => $rowActualizado["confirmaViaje"], "tramoInicial" => "Finalizado"];
+                $payload = ["sql" => "Exito Update record successfully", "id" => $rowActualizado["id"], "confirmaViaje" => $rowActualizado["estatus_operador"], "tramoInicial" => "Finalizado"];
 
                 respuesta(200, 200,  "Respuesta exitosa", $payload);
             } else {

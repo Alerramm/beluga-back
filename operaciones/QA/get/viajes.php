@@ -49,7 +49,7 @@ if (empty($faltantes)) {
         //Consulta viajes
         switch ($estatus) {
             case "Proceso":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto', 'En regreso' )";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' )";
                 break;
             case "Gastos":
                 $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'Gastos'";
@@ -63,11 +63,8 @@ if (empty($faltantes)) {
             case "En trayecto":
                 $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'En trayecto'";
                 break;
-            case "En regreso":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'En regreso'";
-                break;
             case "Entrega":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'Facturacion'";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ( 'Facturacion', 'En regreso')";
                 break;
             case "Historial":
                 $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje FROM viajes where estatus in ( 'Cancelado', 'Finalizado') ORDER BY id DESC;";

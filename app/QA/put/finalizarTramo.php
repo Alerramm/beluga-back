@@ -111,8 +111,8 @@ if (empty($faltantes)) {
                         respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
                     }
                 } else {
-                    $consultaTramoEntregaFinal = "SELECT COUNT(1) FROM tramos where idViaje = (Select idViaje from tramos where id = 4542) and estatus = 'Pendiente' and
-                    (Select COUNT(1) from viajes where id = (Select idViaje from tramos where id = 4542) and redondo = true) > 0;";
+                    $consultaTramoEntregaFinal = "SELECT COUNT(1) FROM tramos where idViaje = $idViaje and estatus = 'Pendiente' and
+                    (Select COUNT(1) from viajes where id = $idViaje and redondo = true) > 0;";
                     $tramoEntregaFinal =  mysqli_query($conexion, $consultaTramoEntregaFinal);
                     $tramoEntregaFinalR = mysqli_fetch_array($tramoEntregaFinal, MYSQLI_ASSOC);
                     if ($tramoEntregaFinalR["COUNT(1)"] == 2) {

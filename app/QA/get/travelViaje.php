@@ -66,68 +66,55 @@ if (empty($faltantes)) {
                         break;
                         break;
                     case "Confirmado":
-                        //Consulta tempOperacion
-                        $consulta = "SELECT confirmaViaje  FROM tempOperacion where idViaje = '$idViaje'";
-                        $tempViaje = mysqli_query($conexion, $consulta);
-                        while ($row = $tempViaje->fetch_array(MYSQLI_ASSOC)) {
-                            $dataTempViaje[] = $row;
-                        }
-                        if (empty($dataTempViaje)) {
-                            respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRTOD" . $dataViaje["id"], []);
-                        } else {
-                            if (count($dataTempViaje) > 1) {
-                                respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRETO", $dataTempViaje);
-                            } else {
-                                $dataTempViaje = $dataTempViaje[0];
-                                //const
-                                $direccionDataViaje = $dataViaje["base"];
+                        //const
+                        $direccionDataViaje = $dataViaje["base"];
 
-                                //consulta baseDeOperaciones
-                                $consultaBase = mysqli_query($conexion, "SELECT nombre, direccion FROM baseDeOperaciones where direccion = '$direccionDataViaje'");
-                                $base = mysqli_fetch_array($consultaBase, MYSQLI_ASSOC);
-                                if (empty($base)) {
-                                    respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRBOD" . $dataViaje["id"], []);
+                        //consulta baseDeOperaciones
+                        $consultaBase = mysqli_query($conexion, "SELECT nombre, direccion FROM baseDeOperaciones where direccion = '$direccionDataViaje'");
+                        $base = mysqli_fetch_array($consultaBase, MYSQLI_ASSOC);
+                        if (empty($base)) {
+                            respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRBOD" . $dataViaje["id"], []);
+                        } else {
+                            //const
+                            $nombreCliente = $dataViaje["cliente"];
+                            //consulta direccionCliente
+                            $consultaDireccionCliente = mysqli_query($conexion, "SELECT domCarga FROM clientes where nombre = '$nombreCliente'");
+                            $direccionCliente = mysqli_fetch_array($consultaDireccionCliente, MYSQLI_ASSOC);
+                            if (empty($direccionCliente)) {
+                                respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRCLD" . $nombreCliente, []);
+                            } else {
+                                //const
+                                $idV = $dataViaje["id"];
+                                //consulta direccionCliente
+                                $consultaTramosViaje = mysqli_query($conexion, "SELECT entrega as destino FROM tramos where idViaje = $idV");
+                                while ($row = $consultaTramosViaje->fetch_array(MYSQLI_ASSOC)) {
+                                    $tramosViaje[] = $row;
+                                }
+                                array_shift($tramosViaje);
+                                array_splice($tramosViaje, count($tramosViaje) - 1);
+                                if (empty($tramosViaje)) {
+                                    respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRTRD" . $idV, []);
                                 } else {
-                                    //const
-                                    $nombreCliente = $dataViaje["cliente"];
-                                    //consulta direccionCliente
-                                    $consultaDireccionCliente = mysqli_query($conexion, "SELECT domCarga FROM clientes where nombre = '$nombreCliente'");
-                                    $direccionCliente = mysqli_fetch_array($consultaDireccionCliente, MYSQLI_ASSOC);
-                                    if (empty($direccionCliente)) {
-                                        respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRCLD" . $nombreCliente, []);
-                                    } else {
-                                        //const
-                                        $idV = $dataViaje["id"];
-                                        //consulta direccionCliente
-                                        $consultaTramosViaje = mysqli_query($conexion, "SELECT entrega as destino FROM tramos where idViaje = $idV");
-                                        while ($row = $consultaTramosViaje->fetch_array(MYSQLI_ASSOC)) {
-                                            $tramosViaje[] = $row;
-                                        }
-                                        array_shift($tramosViaje);
-                                        array_splice($tramosViaje, count($tramosViaje) - 1);
-                                        if (empty($tramosViaje)) {
-                                            respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TRTRD" . $idV, []);
-                                        } else {
-                                            $payload = [
-                                                "id" => $dataViaje["id"],
-                                                "base" => $base["nombre"],
-                                                "direccionBase" => $base["direccion"],
-                                                "cliente" => $dataViaje["cliente"],
-                                                "direccionCliente" => $direccionCliente["domCarga"],
-                                                "fechaCarga" => $dataViaje["fecha_carga"],
-                                                "unidad" => $dataViaje["unidad"],
-                                                "ruta" => $dataViaje["ruta"],
-                                                "destino" => $dataViaje["destino"],
-                                                "estatus" => $dataViaje["estatus"],
-                                                "confirmaViaje" => $dataTempViaje["confirmaViaje"],
-                                                "destinos" => $tramosViaje,
-                                            ];
-                                            respuesta(200, 200, "Respuesta exitosa", $payload);
-                                        }
-                                    }
+                                    $payload = [
+                                        "id" => $dataViaje["id"],
+                                        "base" => $base["nombre"],
+                                        "direccionBase" => $base["direccion"],
+                                        "cliente" => $dataViaje["cliente"],
+                                        "direccionCliente" => $direccionCliente["domCarga"],
+                                        "fechaCarga" => $dataViaje["fecha_carga"],
+                                        "unidad" => $dataViaje["unidad"],
+                                        "ruta" => $dataViaje["ruta"],
+                                        "destino" => $dataViaje["destino"],
+                                        "estatus" => $dataViaje["estatus"],
+                                        "confirmaViaje" => $dataViaje["estatus_operador"],
+                                        "destinos" => $tramosViaje,
+                                    ];
+                                    respuesta(200, 200, "Respuesta exitosa", $payload);
                                 }
                             }
                         }
+
+
                         break;
                     case "Gastos":
                         $payload = [
@@ -249,7 +236,7 @@ if (empty($faltantes)) {
                         //const 
                         $id = $dataViaje["id"];
                         //Consulta tramos
-                        $consultaTramos = "SELECT id, tramo, fecha, entrega, distancia, destino, observaciones, cajas, embarque, estatus FROM tramos where idViaje = $id and estatus in ('Pendiente','Bloqueado')";
+                        $consultaTramos = "SELECT id, tramo, fecha, entrega, distancia, destino, observaciones, estatus FROM tramos where idViaje = $id and estatus in ('Pendiente','Bloqueado')";
                         $tramos = mysqli_query($conexion, $consultaTramos);
                         while ($row = $tramos->fetch_array(MYSQLI_ASSOC)) {
                             $dataTramos[] = $row;

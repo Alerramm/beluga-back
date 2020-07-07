@@ -42,20 +42,23 @@ if (empty($faltantes)) {
 
 
         //Consulta viajes
-        $consulta = "SELECT *  FROM viajes where estatus = 'Confirmado'";
+        $consulta =
+            "SELECT v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, ev.nombre, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio  
+            FROM viajes v 
+            INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+            INNER JOIN tramos t on v.id = t.idViaje
+            INNER JOIN empresa e on ev.idEmpresa = e.id
+            INNER JOIN precio_viaje p on p.idViaje = v.id
+            where t.tramo = 1
+            and estatus = 'Confirmado'";
 
         $viajes = mysqli_query($conexion, $consulta);
         while ($row = $viajes->fetch_array(MYSQLI_ASSOC)) {
-            $baseDeOperaciones = $row["base"];
-            $consultaBase = mysqli_query($conexion, "SELECT nombre FROM baseDeOperaciones where direccion = '$baseDeOperaciones'");
-            $base = mysqli_fetch_array($consultaBase, MYSQLI_ASSOC);
-            $row["base_operaciones"] = $base["nombre"];
             $dateC = new DateTime($row["fecha_carga"]);
             $row["fecha_carga"] = $dateC->format('Y-m-d H:i');
             $dateE = new DateTime($row["fecha_entrega"]);
-            $row["fechaEntregaTemporal"] = $dateE->format('Y-m-d H:i');
+            $row["fecha_entrega"] = $dateE->format('Y-m-d H:i');
             $idViaje = $row["id"];
-            $row["estatusOperador"] =  $row["estatus_operador"];
             $dataViajes[] = $row;
         }
         //Response
