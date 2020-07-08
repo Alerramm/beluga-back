@@ -42,7 +42,7 @@ if (empty($faltantes)) {
         $total = $subtotal1 + $subtotal2 ;
 
         $totalArray = [
-            "Total3: " => $total,
+            "total" => $total,
 
         ];
 
