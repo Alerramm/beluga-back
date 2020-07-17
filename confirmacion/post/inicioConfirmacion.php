@@ -209,6 +209,19 @@ fechaDisponib,confirmacion,idViaje,confirmaViaje,ciudad) value
 
 	mysqli_query($enlace, $queryInsertar);
 
-	$sqlU = "UPDATE viajes  SET  estatus='Confirmado' WHERE id='$idV'";
+
+	$sqlU = "UPDATE viajes  SET  estatus='Confirmado', estatus_app = 'Pendiente' WHERE id='$idV'";
 	mysqli_query($enlace, $sqlU);
+
+	$Datos = array(
+		"id" => $idV,
+	);
+	$url = 'http://www.misistema.mx/beluga/Finanzas/endpoints/confirmacion/post/inicioConfirmacionExtras.php';
+	$ch = curl_init($url);
+	$jsonDataEncoded = json_encode($Datos);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonDataEncoded);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+	$result = curl_exec($ch);
+	echo $resullt;
 }
