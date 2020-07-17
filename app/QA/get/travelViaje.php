@@ -106,7 +106,7 @@ if (empty($faltantes)) {
                                         "ruta" => $dataViaje["ruta"],
                                         "destino" => $dataViaje["destino"],
                                         "estatus" => $dataViaje["estatus"],
-                                        "confirmaViaje" => $dataViaje["estatus_operador"],
+                                        "confirmaViaje" => $dataViaje["estatus_app"],
                                         "destinos" => $tramosViaje,
                                     ];
                                     respuesta(200, 200, "Respuesta exitosa", $payload);

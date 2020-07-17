@@ -58,13 +58,13 @@ if (empty($faltantes)) {
             respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-TATOD" . $id, []);
         } else {
             //Update
-            $updateEstatus =  "UPDATE viajes SET estatus_operador='$opcion' WHERE id = $id;";
+            $updateEstatus =  "UPDATE viajes SET estatus_app='$opcion' WHERE id = $id;";
             if ($conexion->query($updateEstatus) === TRUE) {
                 $viajesActualizados =  mysqli_query($conexion, $consulta);
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
 
 
-                $payload = ["sql" => "Exito Update record successfully", "id" => $rowActualizado["id"], "confirmaViaje" => $rowActualizado["estatus_operador"], "tramoInicial" => "Finalizado"];
+                $payload = ["sql" => "Exito Update record successfully", "id" => $rowActualizado["id"], "confirmaViaje" => $rowActualizado["estatus_app"], "tramoInicial" => "Finalizado"];
 
                 respuesta(200, 200,  "Respuesta exitosa", $payload);
             } else {

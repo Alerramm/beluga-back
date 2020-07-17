@@ -26,6 +26,57 @@ function respuesta($codehttp, $code, $mensaje, $factload)
     echo json_encode($dataFinal);
 }
 
+function consulta($conexion, $consulta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $row["key"] = $row["id"];
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
+function consultaGastos($conexion, $consulta, $rowRespuesta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $tipo = $row["tipo"];
+            $rowRespuesta[strtolower($tipo)] = $row["presupuesto"];
+        }
+    }
+
+    return $rowRespuesta;
+}
+
+function consultaViajes($conexion, $consulta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $row["tramos"] = consulta($conexion, "SELECT id, tramo, fecha as fecha_tramo, destino as destino_tramo, entrega as entrega_tramo, distancia as distancia_tramo, casetas as casetas_tramo FROM tramos WHERE idViaje = " . $row["idViaje"]);
+            $row["key"] = $row["idViaje"];
+            $row = consultaGastos($conexion, "SELECT * FROM gastos WHERE idViaje = " . $row["idViaje"], $row);
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
 //Validacion de Datos
 
 if (empty($faltantes)) {
@@ -42,30 +93,25 @@ if (empty($faltantes)) {
 
 
         //Consulta viajes
-        $consulta =
-            "SELECT v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, ev.nombre, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio  
+        $consultaViajes =
+            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto
             FROM viajes v 
             INNER JOIN empresa_viaje ev on v.id = ev.idViaje
             INNER JOIN tramos t on v.id = t.idViaje
             INNER JOIN empresa e on ev.idEmpresa = e.id
             INNER JOIN precio_viaje p on p.idViaje = v.id
+            INNER JOIN metricas_precio m on p.idMetricasPrecio = m.id
             where t.tramo = 1
-            and estatus = 'Confirmado'";
+            and v.estatus = 'Confirmado'";
 
-        $viajes = mysqli_query($conexion, $consulta);
-        while ($row = $viajes->fetch_array(MYSQLI_ASSOC)) {
-            $dateC = new DateTime($row["fecha_carga"]);
-            $row["fecha_carga"] = $dateC->format('Y-m-d H:i');
-            $dateE = new DateTime($row["fecha_entrega"]);
-            $row["fecha_entrega"] = $dateE->format('Y-m-d H:i');
-            $idViaje = $row["id"];
-            $dataViajes[] = $row;
-        }
+        $payload = consultaViajes($conexion, $consultaViajes);
+
+
         //Response
-        if (empty($dataViajes)) {
-            respuesta(200, 404, "No existen viajes ", []);
+        if (empty($payload)) {
+            respuesta(200, 404, "No existen viajes por confirmar", []);
         } else {
-            $payload = $dataViajes;
+
             respuesta(200, 200, "Respuesta exitosa", $payload);
         }
     }
