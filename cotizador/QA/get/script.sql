@@ -169,4 +169,16 @@ CREATE TABLE  dbs304381.productosByViaje (
 
 
 
+CREATE TABLE  dbs304381.contactoCliente (
+	idContacto int (11) NOT NULL AUTO_INCREMENT,
+	idCliente varchar (20) ,
+	tipoContacto varchar (10),
+	contacto varchar (32),
+	telefono varchar (20),
+	correo varchar (60),
+	PRIMARY KEY (idContacto)
+}
 
+1 = contacto general
+2 = contacto de carga
+3 = contacto de entrega

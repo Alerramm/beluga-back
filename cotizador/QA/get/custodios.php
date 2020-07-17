@@ -45,7 +45,7 @@ if (empty($faltantes)) {
         ];
     
     }else{
-        respuesta(200, 404, "Servicio no disponible", []);
+        respuesta(200, 204, "Servicio no disponible", []);
     }
 
     // //Conexion a base de datos

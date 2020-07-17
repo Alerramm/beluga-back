@@ -1,26 +1,69 @@
 <?PHP
-$datos = json_decode(file_get_contents('php://input'), true);
-
+//datos .env
 include '../production.php';
-/* echo json_encode($data); */
+
+//header
 header('Access-Control-Allow-Origin: *');
 header("Content-Type: application/json; charset=UTF-8");
-//Conexion a base de datos
-$mysqli = mysqli_init();
-$conexion = mysqli_connect($_SESSION['HOST'], $_SESSION['USER'], $_SESSION['PASS'], $_SESSION['DBNAME']);
-//$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
-//variables globales
-mysqli_set_charset($conexion, 'utf8');
-$respuestaFinal = 0;
-$respuestaFinalViaje = 0;
-$respuestaFinalUpdate = 0;
-$last_id = 0;
+
+//funciones
+function respuesta($codehttp, $code, $mensaje, $payload)
+{
+    http_response_code($codehttp);
+    $dataFinal = ["headerResponse" => ["code" => $code, "mensaje" => $mensaje], "payload" => $payload];
+    echo json_encode($dataFinal);
+}
+
+function get_horario()
+{
+
+  $validator=1;
+  $fecha = date('Y-m-d H:i:s');
+
+  $dias = array('Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado');
+    $fecha = $dias[date('N', strtotime($fecha))];
+
+    $payloadGastosInsert[] = ["Horario" => "Fecha" . $fecha];
+
+  if($fecha == "Domingo"){
+      $payloadGastosInsert[] = ["Horario" => "Fecha entra en IF" . $fecha];
+
+
+  }else{
+ 
+       $hoy = getdate();
+       $hoy = 
+      
+
+     
+      $hora= $hoy['hours'];
+      $hora = $hora - 1;
+
+      $payloadGastosInsert[] = ["Horario" => "Hora Else  " . $hora];
+
+      
+        if($hora >8 && $hora <18 ){
+          $validator=1;
+          }else{
+            $validator=0;
+          }    
+  }
+
+  $payloadGastosInsert[] = ["Horario" => "Validador   " . $validator];
+return $validator;
+}
+
+//saber_dia('2015-03-13');
+//const
 $faltantes = [];
 
+//datos Request
+$datos = json_decode(file_get_contents('php://input') , true);
 
-
+//Viaje
 $base_de_operaciones = $datos["base_de_operaciones"];
 $cliente = $datos["cliente"];
+$datosClienteTot = $datos["datosClienteTot"];
 $diesel = $datos["diesel"];
 $fecha_salida_unix = strtotime('-5 hour', strtotime($datos["fecha_salida"]));
 $fecha_salida = gmdate("Y-m-d\TH:i:s\Z", $fecha_salida_unix);
@@ -30,312 +73,820 @@ $fecha_disponibilidad_unix = strtotime('-5 hour', strtotime($datos["fecha_dispon
 $fecha_disponibilidad = gmdate("Y-m-d\TH:i:s\Z", $fecha_disponibilidad_unix);
 $isRoundTrip = $datos["isRoundTrip"];
 $unidad = $datos["unidad"];
-$numero_de_tramos = $datos["numero_de_tramos"] + 1;
-$tipoDeUnidad = $datos["unidad"];
+$numero_de_tramos = $datos["numero_de_tramos"] ;
 $tonelaje = $datos["tipoDeAdecuacion"];
 $total_casetas = $datos["total_casetas"];
-$total_distancia = $datos["total_distancia"] / 1000;
-$ejes =  $datos["ejes"];
+//$total_distancia = $datos["total_distancia"] / 1000;
+$total_distancia = $datos["total_distancia"];
+$ejes = $datos["ejes"];
 $total_tiempo = 0;
-$total_tiempo_formato =  $datos["total_tiempo"];
-//$operador = $datos["operador"];
+$total_tiempo_formato = $datos["total_tiempo"];
 $checkFecha = $datos["checkValidDate"];
 $multidestino = $datos["isMultidestiny"];
 $routeName = $datos["routeName"];
 $datosServiciosAdicionales = $datos["seviciosAdiconales"];
 $productoRes = $datos["producto"];
+$tipoCliente = $datos["tipoCliente"];
+$totalPrecioViaje = $datos["totalPrecioViaje"];
+$metricas = $datos["metricas"];
+$idTipoPrecio = $datos["idTipoPrecio"];
 
 
-//funciones
-function respuesta($codehttp, $code, $mensaje, $payload)
-{
-    http_response_code($codehttp);
-    $dataFinal = [
-        "headerResponse" => [
-            "code" => $code,
-            "mensaje" => $mensaje
-        ],
-        "payload" => $payload
-    ];
-    echo json_encode($dataFinal);
+if($idTipoPrecio=="" || $idTipoPrecio=="0"){
+    $idTipoPrecio=rand (  1 , 4 ) ;
 }
 
-/*
-if ($productoRes == "") {
+
+$tipoUnidad = $datos["tipoUnidad"];
+$tipoDeAdecuacion = $datos["tipoDeAdecuacion"];
+$password = $datos["password"];
+$saveTrip = $datos["saveTrip"];
+
+if ($tipoUnidad == "")
+{
+    array_push($faltantes, 'tipoUnidad');
+}
+if ($tipoDeAdecuacion == "")
+{
+    array_push($faltantes, 'tipoDeAdecuacion');
+}
+if ($metricas == "")
+{
+    array_push($faltantes, 'metricas');
+}
+if ($totalPrecioViaje == "")
+{
+    array_push($faltantes, 'totalPrecioViaje');
+}
+if ($tipoCliente == "")
+{
+    array_push($faltantes, 'tipoCliente');
+}
+if ($productoRes == "")
+{
     array_push($faltantes, 'productoRes');
-  }
-  if ($datosServiciosAdicionales == "") {
+}
+if ($datosServiciosAdicionales == "")
+{
     array_push($faltantes, 'datosServiciosAdicionales');
-  }
-  if ($base_de_operaciones == "") {
+}
+if ($base_de_operaciones == "")
+{
     array_push($faltantes, 'Base de Operaciones');
-  }
-  if ($cliente == "") {
-    array_push($faltantes, 'cliente');
-  }
-  if ($diesel == "") {
+}
+if ($cliente == "")
+{
+    array_push($faltantes, 'Cliente');
+}
+if ($datosClienteTot == "" && $cliente == "0")
+{
+    array_push($faltantes, 'Datos del cliente');
+}
+if ($diesel == "")
+{
     array_push($faltantes, 'Disel');
-  }
-  if ($ejes == "") {
+}
+if ($ejes == "")
+{
     array_push($faltantes, 'Ejes');
-  }
-  if ($fecha_salida == "") {
+}
+if ($fecha_salida == "")
+{
     array_push($faltantes, 'Fecha de Salida');
-  }
-  if ($fecha_carga == "") {
+}
+if ($fecha_carga == "")
+{
     array_push($faltantes, 'Fecha de Carga');
-  }
-  if ($fecha_disponibilidad == "") {
+}
+if ($fecha_disponibilidad == "")
+{
     array_push($faltantes, 'Fecha de Disponibilidad');
-  }
-  if ($unidad == "") {
-    array_push($faltantes, 'Unidad');
-  }
-  if ($tipoDeUnidad == "") {
-    array_push($faltantes, 'Tipo de Unidad');
-  }
-  if ($tonelaje == "") {
+}
+
+
+if ($tonelaje == "")
+{
     array_push($faltantes, 'Tonelaje');
-  }
-  if ($total_distancia == "") {
+}
+if ($total_distancia == "")
+{
     array_push($faltantes, 'Distancia');
-  }
-  if ($total_tiempo_formato == "") {
+}
+if ($total_tiempo_formato == "")
+{
     array_push($faltantes, 'Tiempo Formato');
-  }
+}
 
+if (empty($faltantes))
+{
 
-*/
+    $mysqli = mysqli_init();
+    $conexion = mysqli_connect($_SESSION['HOST'], $_SESSION['USER'], $_SESSION['PASS'], $_SESSION['DBNAME']);
+    //Validacion conexion con bd
+    if (!$conexion)
+    {
+        respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-CLBD1", []);
+    }
+    else
+    {
 
- // if (!empty($faltantes)) {  
+        if ($cliente == "0" || $cliente == "" || $cliente == null )
+        {
 
+            $nombreCliente = $datosClienteTot["datosCliente"]["nombrePropietario"];
+            $rfc = $datosClienteTot["datosCliente"]["rfc"];
+            $telefono = $datosClienteTot["datosCliente"]["telefono"];
+            $email = $datosClienteTot["datosCliente"]["email"];
+            $contacto = $datosClienteTot["datosCliente"]["contacto"];
+            $razonSocial = $datosClienteTot["datosCliente"]["razonSocial"];
 
+            $insertV = "INSERT INTO clientes (nombre,rfc,telefono, email, contacto, razonSocial,tipoCliente)  VALUES ('$nombreCliente','$rfc','$telefono','$email','$contacto','$razonSocial','$tipoCliente')";
 
-        //$totalDistanceDisplay = $datos["totalDistanceDisplay"];
-        $fechaEntregaTemporal = "aun nose";
-        $entrega = "aun nose";
-        $estatus = "Solicitudxxp";
+            if ($conexion->query($insertV) === true)
+            {
+                $last_id = $conexion->insert_id;
+                $payloadGastosInsert[] = ["contactoInsert" => " Exito al registrar cliente" . $last_id];
+                $idClienteFinal = $last_id;
 
-        /*  $insertV = "INSERT INTO viaje VALUES 
-        (null,'$base_de_operaciones','$cliente','$diesel','$fecha_salida','$fecha_carga','$fecha_disponibilidad','$fechaEntregaTemporal',
-        '$isRoundTrip','$unidad','$numero_de_tramos','$tipoDeUnidad','$tonelaje','$total_casetas','$total_distancia',
-        '$ejes','$total_tiempo','$total_tiempo_formato','$operador','$entrega','$estatus','$checkFecha','')"; */
+                $contacto = $datosClienteTot["contactoGeneral"]["contacto"];
+                $telefono = $datosClienteTot["contactoGeneral"]["telefono"];
+                $correo = $datosClienteTot["contactoGeneral"]["correo"];
 
-        $insertV =  "INSERT INTO viajes VALUES 
-                (null,'$base_de_operaciones','$cliente','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
-                '$fecha_disponibilidad','$tipoDeUnidad','$tonelaje','$unidad','$operador','$numero_de_tramos','$diesel','$total_distancia',
-                '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','$saveTrip',
-                '$estatus')";
+                $insertV = "INSERT INTO contactoCliente (idCliente ,tipoContacto ,contacto , telefono , correo )  VALUES ('$idClienteFinal','1','$contacto','$telefono','$correo')";
 
-        //Insercion de viaje
-        if ($conexion->query($insertV) === TRUE) {
-            $last_id = $conexion->insert_id;
-            $respuestaV = 200;
-            $dataV[] = " Exito New Travel record created successfully " . $last_id;
-
-            if ($respuestaV == 500) {
-                $respuestaFinalViaje = 500;
-              } else {
-                $respuestaFinalViaje = $respuestaV;
-              }
-
-              $dataFinal[] = [
-                "statusTrip" => $respuestaFinalViaje
-              ];
-              $dataFinal["viaje"] = $dataV;
-
-              
-
-     
-              //Insercion de 
-              $contTramos = 1;
-
-              foreach ($datos["rutas"] as &$valor) {
-                $indexRoute = $contTramos;
-                $casetas = $valor["casetas"];
-                $destino = $valor["destino"];
-                $distancia =  round($valor["distancia"]) / 1000;
-                $fecha_unix = strtotime('-5 hour', strtotime($valor["fecha"]));
-                $fecha = gmdate("Y-m-d\TH:i:s\Z", $fecha_unix);
-                if ($indexRoute < 3) {
-                  $entrega = $valor["ciudad"];
-                  $entregaTemporal = $valor["destino"];
-                  $fechaEntregaTemporal = $fecha;
+                if ($conexion->query($insertV) === true)
+                {
+                    $last_id = $conexion->insert_id;
+                    $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar contacto " . $last_id];
                 }
-                $fechaLabel = $valor["fechaLabel"];
-                $load_time = $valor["load_time"];
-                $tiempo = $valor["tiempo"];
-                $total_tiempo = $total_tiempo + $distancia / 60 + $load_time;
-                $origen = $valor["origen"];
-                $waypoints = $valor["waypoints"];
-                $ciudad =  $valor["ciudad"];
-                $observaciones = $valor["observaciones"];
-                $tipo = "aun nose";
-                $idviaje = $last_id;
-                /* $insertT =  "INSERT INTO tramos VALUES 
-              (null,$indexRoute,'$casetas','$destino','$distancia','$fecha','$fechaLabel',' $load_time','$origen',
-              '$tiempo','$waypoints','$tipo','$idviaje','$observaciones','Pendiente','','','$ciudad')"; */
-                $insertT =  "INSERT INTO tramos VALUES 
-                (null,'$idviaje',$indexRoute,'$fecha','$origen','$ciudad','$destino',' $load_time','$tiempo','$casetas','$distancia',
-                '$observaciones','$waypoints','','','Confirmado')";
-                if ($conexion->query($insertT) === TRUE) {
-                  $respuesta = 200;
-                  $data[] = "Index Route " . $indexRoute . " Exito New record created successfully";
-                } else {
-                  $respuesta = 500;
-                  $res = "Error: " . $insertT . "<br>" . $conexion->error;
-                  $data[] = "Index Route " . $indexRoute . $res . " Algo paso";
+                else
+                {
+                    $payloadGastosInsert[] = ["contactoInsert" => " Error al insertar contacto " . $last_id];
                 }
-                if ($respuesta == 500) {
-                  $respuestaFinal = 500;
+
+                $contacto = $datosClienteTot["contactoCarga"]["contacto"];
+                $telefono = $datosClienteTot["contactoCarga"]["telefono"];
+                $correo = $datosClienteTot["contactoCarga"]["correo"];
+
+                $insertV = "INSERT INTO contactoCliente (idCliente ,tipoContacto ,contacto , telefono , correo )  VALUES ('$idClienteFinal','2','$contacto','$telefono','$correo')";
+                if ($conexion->query($insertV) === true)
+                {
+                    $last_id = $conexion->insert_id;
+                    $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar contactoCliente " . $last_id];
                 }
-                $contTramos = $contTramos + 1;
-              }
-              $total_tiempo = $total_tiempo - 1;
+                else
+                {
+                    $payloadGastosInsert[] = ["contactoInsert" => " Error al insertar contactoCliente " . $last_id];
+                }
 
-              //Update
-              $insertU =  "UPDATE viajes SET fecha_entrega='$fechaEntregaTemporal',destino='$entrega',ruta='$entregaTemporal',tiempo ='$total_tiempo' WHERE id = $idviaje;";
-              if($multidestino){
-                $insertU =  "UPDATE viajes SET fecha_entrega='$fechaEntregaTemporal',destino='Multidestino',tiempo ='$total_tiempo' WHERE id = $idviaje;";
-              }
+                $contacto = $datosClienteTot["contactoEntrega"]["contacto"];
+                $telefono = $datosClienteTot["contactoEntrega"]["telefono"];
+                $correo = $datosClienteTot["contactoEntrega"]["correo"];
 
-              if ($conexion->query($insertU) === TRUE) {
-                $dataU[] = " Exito Update record successfully";
-              } else {
-                $respuestaFinalUpdate == 500;
-                $res = "Error: " . $insertU . "<br>" . $conexion->error;
-                $dataU[] = $res . " Algo paso";
-              }   
-              
-              
-              if ($respuestaFinal == 0 && $respuestaFinalViaje == 200 && $respuestaFinalUpdate == 0) {
-                $respuestaFinal = 200;
-                $payloadGastosInsert [] = ["Viaje Agregado" => " Exito New Travel record created successfully " . $idviaje];
+                $insertV = "INSERT INTO contactoCliente (idCliente ,tipoContacto ,contacto , telefono , correo )  VALUES ('$idClienteFinal','3','$contacto','$telefono','$correo')";
+                if ($conexion->query($insertV) === true)
+                {
+                    $last_id = $conexion->insert_id;
+                    $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar contactoCliente " . $last_id];
+                }
+                else
+                {
+                    $payloadGastosInsert[] = ["contactoInsert" => " Error al insertar contactoCliente " . $last_id];
+                }
 
-                $insertT =  "INSERT INTO serviciosAdicionales (idViaje) VALUES ($idviaje)";
-                if ($conexion->query($insertT) === TRUE) { 
-                    $last_id = $conexion->insert_id;  
-
-                    $payloadGastosInsert [] = ["servAdInsert" => " Exito New Travel record created successfully " . $insert_id];
+                $insertV = "INSERT INTO usuarios (id,usuario ,password,nombre,mail,perfil)  VALUES ('$idClienteFinal','$email','$password','$nombreCliente','$email','CLIENTE')";
+                if ($conexion->query($insertV) === true)
+                {
+                    $last_id = $conexion->insert_id;
+                    $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar usuario" . $last_id];
 
 
+
+                    $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoUnidad' " ;
+                    $consultaresponse =  mysqli_query($conexion, $consulta);
+                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                    $tipoUnidadNombre = $row2["nombreUnidad"];
+            
                     
-
-                                    $monto=$datosServiciosAdicionales["mercanciaAsegurada"]["monto"];
-                                    $precio=$datosServiciosAdicionales["mercanciaAsegurada"]["precio"];
-
-                                    $insertT =  "INSERT INTO mercanciaAsegurada (idServicioAdicional,monto,precio) VALUES ($last_id,$monto,$precio )";
-                                    if ($conexion->query($insertT) === TRUE) { 
-                                        $payloadGastosInsert [] = ["servAdMercanciaInsert" => " Exito New Travel record created successfully " . $insert_id];
-                                    }else{
-                                        $payloadGastosInsert [] = ["servAdMercanciaInsert" => " Error al insertar Mercnai " . $insert_id]; 
-                                        
-                                    } 
+            
+                    $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecuacion' " ;
+                    $consultaresponse =  mysqli_query($conexion, $consulta);
+                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                    $tipoDeAdecuacionNombre = $row2["nombreAdecuacion"];
 
 
-                                    $numeroCarga=$datosServiciosAdicionales["maniobras"]["numeroCarga"];
-                                    $numeroEntrega=$datosServiciosAdicionales["maniobras"]["numeroEntrega"];
-                                    $precio=$datosServiciosAdicionales["maniobras"]["precio"];
+                    //Termina Enrollamiento
+                    $fechaEntregaTemporal = "aun nose";
+                    $entrega = "aun nose";
+                    $estatus = "Solicitud";
+                    $base_de_operaciones = "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico";
+                    $insertV = "INSERT INTO viajes VALUES 
+                                        (null,'$base_de_operaciones','$nombreCliente','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
+                                        '$fecha_disponibilidad','$tipoDeAdecuacionNombre','$tipoUnidadNombre','$unidad','','$numero_de_tramos','$diesel','$total_distancia',
+                                        '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','',false,'$estatus','Pendiente')";
+                         
+                    if ($conexion->query($insertV) === true)
+                    {
+                        $last_id = $conexion->insert_id;
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully " . $last_id];
+                        $contTramos = 1;
 
 
-                                    $insertT =  "INSERT INTO maniobras (idServicioAdicional,numeroCarga,numeroEntrega,precio) VALUES ($last_id,$numeroCarga,$numeroEntrega,$precio)";
+                        if ($saveTrip==1) {
+                            $name = $last_id;
+                            $insertTrip = "INSERT INTO viajes_guardados VALUES 
+                            (null,'$name','Solicitudes','$last_id')";
 
-                                    if ($conexion->query($insertT) === TRUE) { 
-                                        $payloadGastosInsert [] = ["AgregarManiobras" => " Exito New Travel record created successfully " . $insert_id];
-                                    }else{
-                                        $payloadGastosInsert [] = ["AgregarManiobras" => " Error al insertar Maniobras " . $insert_id]; 
-
-                                    } 
-
-                                    $tipo=$datosServiciosAdicionales["seguridadAdicional"]["tipo"];
-                                    $precio=$datosServiciosAdicionales["seguridadAdicional"]["precio"];
-
-                                    $insertT =  "INSERT INTO seguridadAdicional (idServicioAdicional,tipo,precio) VALUES ($last_id,$tipo,$precio)";
-                                    if ($conexion->query($insertT) === TRUE) { 
-                                        $payloadGastosInsert [] = ["AgregarseguridadAdicional" => " Exito New Travel record created successfully " . $insert_id];
-
-                                    }else{
-                                        $payloadGastosInsert [] = ["AgregarseguridadAdicional" => " Error al insertar Seguridad Adicional " . $insert_id]; 
-
-                                    } 
-
-                                    $km=$datosServiciosAdicionales["custodia"]["km"];
-                                    $precio=$datosServiciosAdicionales["custodia"]["precio"];
+                            if ($conexion->query($insertTrip) === true) {
+                            
+                         
+                              $payloadGastosInsert[] = ["saveTripsInsert" => " Exito New saveTrips record created successfully " . $last_id];
+                            } else {
+                                $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips " . $insertTrip];
+                            }
+                          } else {
+                             $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips tercera " . $insertTrip];
+                          }
 
 
-                                    $insertT =  "INSERT INTO custodia (idServicioAdicional,km,precio) VALUES ($last_id,$km,$precio)";
+                        foreach ($datos["rutas"] as & $valor)
+                        {
+                            $indexRoute = $contTramos;
+                            $casetas = $valor["casetas"];
+                            $destino = $valor["destino"];
+                            $distancia = round($valor["distancia"]) / 1000;
+                            $fecha_unix = strtotime('-5 hour', strtotime($valor["fecha"]));
+                            $fecha = gmdate("Y-m-d\TH:i:s\Z", $fecha_unix);
+                            if ($indexRoute < 3)
+                            {
+                                $entrega = $valor["ciudad"];
+                                $entregaTemporal = $valor["destino"];
+                                $fechaEntregaTemporal = $fecha;
+                            }
+                            if($indexRoute==1){
+                                $fechaCargaTemporal=$fecha;
+                            }
+                            $entrega = $valor["ciudad"];
+                            $fechaLabel = $valor["fechaLabel"];
+                            $load_time = $valor["load_time"];
+                            $tiempo = $valor["tiempo"];
+                            $total_tiempo = $total_tiempo + $distancia / 60 + $load_time;
+                            $origen = $valor["origen"];
+                            $waypoints = $valor["waypoints"];
+                            $ciudad = $valor["ciudad"];
+                            $observaciones = $valor["observaciones"];
+                            $tipo = "aun nose";
+                            $idviaje = $last_id;
 
-                                    if ($conexion->query($insertT) === TRUE) { 
-                                        $payloadGastosInsert [] = ["Agregarcustodia" => " Exito New Travel record created successfully " . $insert_id];
-                                    }else{
+                            /* $insertT =  "INSERT INTO tramos VALUES
+                                                (null,$indexRoute,'$casetas','$destino','$distancia','$fecha','$fechaLabel',' $load_time','$origen',
+                                                '$tiempo','$waypoints','$tipo','$idviaje','$observaciones','Pendiente','','','$ciudad')"; */
+                            $insertT = "INSERT INTO tramos VALUES 
+                                                (null,'$idviaje',$indexRoute,'$fecha','$origen','$ciudad','$destino',' $load_time','$tiempo','$casetas','$distancia',
+                                                '$observaciones','[]','Pendiente')";
 
-                                        $payloadGastosInsert [] = ["Agregarcustodia" => " Error al insertar custodia " . $insert_id]; 
+                            if ($conexion->query($insertT) === true)
+                            {
+                                $last_id_trip = $conexion->insert_id;
+                                $payloadGastosInsert[] = ["tramosInsert" => " Exito New Travel record created successfully " . $last_id_trip];
+
+                                foreach ($casetasToll[$contTramos - 1] as & $casetas)
+                                {
+                                    $name = $casetas["name"];
+                                    $costoC = $casetas["cashCost"];
+                                    $insertCasetas = "INSERT INTO casetas(id_tramo, nombre, precio) VALUES ($last_id_trip,'$name','$costoC')";
+                                    if ($conexion->query($insertCasetas) === true)
+                                    {
+
+                                        $payloadGastosInsert[] = ["casetasInsert" => " Exito New Travel record created successfully " . $indexRoute];
                                     }
+                                    else
+                                    {
 
-
-
-
-                                    $categoria=$productoRes["categoria"];
-                                    $peso=$productoRes["peso"];
-                                    $largo=$productoRes["medidas"]["largo"];
-                                    $ancho=$productoRes["medidas"]["ancho"];
-                                    $alto=$productoRes["medidas"]["alto"];
-                                    $descripcion= $productoRes["descripcion"];
-                                    
-
-                                    $insertT =  "INSERT INTO productosByViaje (idViaje,peso,largo,ancho,alto,descripcion) VALUES ($idViaje,$peso,$largo,$ancho,$alto,$descripcion)";
-                                    if ($conexion->query($insertT) === TRUE) { 
-                                        $payloadGastosInsert [] = ["AgregarProductos" => " Exito New Travel record created successfully " . $insert_id];
-                                    }else{
-
-                                        $payloadGastosInsert [] = ["AgregarProductos" => " Error al insertar Productos " . $insert_id]; 
+                                        $payloadGastosInsert[] = ["casetasInsert" => " Error al insertar caseta " . $indexRoute];
                                     }
+                                }
 
+                                $payloadGastosInsert[] = ["TramosCompleto" => " Tramos agregados success " . $last_id_trip];
 
+                            }
+                            else
+                            {
+                                $payloadGastosInsert[] = ["tramosInsert" => " Error al insertar tramo " . $conexion->error];
+                            }
+                            $contTramos = $contTramos + 1;
+                        }
 
-                                $payloadGastosInsert [] = ["Servicios Adicionales Record OK" => " Exito New Travel record created successfully " . $insert_id];
+                        $total_tiempo = $total_tiempo - 1;
+
+                        $payloadGastosInsert[] = ["TramosCompleto" => " Tramos agregados Exito " . $last_id_trip];
+
+                        //Update
+                        $insertU = "UPDATE viajes SET fecha_salida='$fechaCargaTemporal', fecha_carga = '$fechaCargaTemporal', fecha_disponibilidad='$fecha', fecha_entrega='$fechaEntregaTemporal',destino='$entrega',ruta='$entregaTemporal',tiempo ='$total_tiempo' WHERE id = '$idviaje';";
+                        if ($multidestino)
+                        {
+                            $insertU = "UPDATE viajes SET fecha_salida='$fechaCargaTemporal', fecha_carga = '$fechaCargaTemporal', fecha_disponibilidad='$fecha', fecha_entrega='$fechaEntregaTemporal',destino='Multidestino',tiempo ='$total_tiempo' WHERE id = '$idviaje';";
+                        }
+
+                        if ($conexion->query($insertU) === true)
+                        {
+                            $payloadGastosInsert[] = ["updateSuccess" => " Exito al actualizar viaje" . $insert_id];
+
+                            //aqui empieza nuevo flujo
+                            $insertT = "INSERT INTO serviciosAdicionales (idViaje) VALUES ($idviaje)";
+                            if ($conexion->query($insertT) === true)
+                            {
+                                $last_id = $conexion->insert_id;
+                                $payloadGastosInsert[] = ["servAdInsert" => " Exito al insertar Servicios Adicionales " . $last_id];
+
+                                $monto = $datosServiciosAdicionales["mercanciaAsegurada"]["monto"];
+                                $precio = $datosServiciosAdicionales["mercanciaAsegurada"]["precio"];
+
+                                $insertT = "INSERT INTO mercanciaAsegurada (idServicioAdicional,monto,precio) VALUES ($last_id,$monto,$precio )";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["servAdMercanciaInsert" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["servAdMercanciaInsert" => " Error al insertar Mercan " . $last_id];
+                                }
+
+                                $numeroCarga = $datosServiciosAdicionales["maniobras"]["numeroCarga"];
+                                $numeroEntrega = $datosServiciosAdicionales["maniobras"]["numeroEntrega"];
+                                $precio = $datosServiciosAdicionales["maniobras"]["precio"];
+
+                                $insertT = "INSERT INTO maniobras (idServicioAdicional,numeroCarga,numeroEntrega,precio) VALUES ($last_id,$numeroCarga,$numeroEntrega,$precio)";
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarManiobras" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["AgregarManiobras" => " Error al insertar Maniobras " . $last_id];
+                                }
+
+                                $tipo = $datosServiciosAdicionales["seguridadAdicional"]["tipo"];
+                                $precio = $datosServiciosAdicionales["seguridadAdicional"]["precio"];
+
+                                $insertT = "INSERT INTO seguridadAdicional (idServicioAdicional,tipo,precio) VALUES ('$last_id','$tipo','$precio')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarseguridadAdicional" => " Exito New Travel record created successfully " . $last_id];
+
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["AgregarseguridadAdicional" => " Error al insertar Seguridad Adicional " . $conexion->error];
+
+                                }
+
+                                $km = $datosServiciosAdicionales["custodia"]["km"];
+                                $precio = $datosServiciosAdicionales["custodia"]["precio"];
+
+                                $insertT = "INSERT INTO custodia (idServicioAdicional,km,precio) VALUES ($last_id,$km,$precio)";
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["Agregarcustodia" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["Agregarcustodia" => " Error al insertar custodia " . $last_id];
+                                }
+
+                                $categoria = $productoRes["categoria"];
+                                $peso = $productoRes["peso"];
+                                $largo = $productoRes["medidas"]["largo"];
+                                $ancho = $productoRes["medidas"]["ancho"];
+                                $alto = $productoRes["medidas"]["alto"];
+                                $descripcion = $productoRes["descripcion"];
+
+                                $insertT = "INSERT INTO productosByViaje (idViaje,peso,largo,ancho,alto,descripcion) VALUES ('$idviaje','$peso','$largo','$ancho','$alto','$descripcion')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarProductos" => " Exito New Travel record created successfully " . $idviaje];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["AgregarProductos" => " Error al insertar Productos " . $conexion->error];
+                                }
+
+                                $payloadGastosInsert[] = ["Servicios Adicionales Record OK" => " Exito New Travel record created successfully " . $last_id];
 
                                
 
-                 }else{
-                    $payloadGastosInsert [] = ["servAdInsert" => " Error al insertar servAdicional " . $insert_id];  
-                 }
+                                //aqui Continua el flujo parte 2
 
 
 
-              } else {
-                    $respuestaFinal = 500;
+
+
+                                $grupo=$metricas["idGrupo"];
+                                $rendimiento=$metricas["rendimiento"];
+                                $num_dias=$metricas["numDias"];
+                                $comision=$metricas["comision"];
+                                $viaticos=$metricas["viaticos"];
+                                $utilidad_premium=$metricas["utilidadPremium"];
+                                $gasto_premium=$metricas["gastoPremium"];
+                                $km_inicial=$metricas["KilomInicial"];
+                                $km_final=$metricas["KilomFinal"];
+
+                                $insertT = "INSERT INTO metricas_precio (grupo,rendimiento,num_dias,comision,viaticos,utilidad_premium,gasto_premium,km_inicial,km_final) VALUES ('$grupo','$rendimiento','$num_dias','$comision','$viaticos','$utilidad_premium','$gasto_premium','$km_inicial','$km_final')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                  $last_idmetricas_precio = $conexion->insert_id;
+                                  
+                                    $payloadGastosInsert[] = ["Agregarmetricas_precio" => " Exito New metricas_precio record created successfully " . $last_idmetricas_precio];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["Agregarpmetricas_precio" => " Error al insertar metricas_precio " . $last_idmetricas_precio];
+                                }
+
+
+
+                                $horario_laboral = get_horario();
+                                $insertT = "INSERT INTO precio_viaje (idViaje,idTipoPrecio,horario_laboral,precio,idMetricasPrecio) VALUES ('$idviaje','$idTipoPrecio','$horario_laboral','$totalPrecioViaje','$last_idmetricas_precio')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Exito New precio_viaje record created successfully " . $idviaje];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Error al insertar precio_viaje " . $idviaje];
+                                }
+
+
+                                respuesta(200, 200, "Total record", $payloadGastosInsert);
+
+                                
+
+                                
+
+                                
+                            }
+                            else
+                            {
+                                $payloadGastosInsert[] = ["servAdInsert" => " Error al insertar Servicios Adicionales " . $insert_id];
+                                respuesta(500, 500, "Total record", $payloadGastosInsert);
+
+                            }
+
+                        }
+                        else
+                        {
+                            $payloadGastosInsert[] = ["updateSuccess" => " Error al actualizar Viaje " . $insert_id];
+                            respuesta(500, 500, "Total record", $payloadGastosInsert);
+                        }
+
+                    }
+                    else
+                    {
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Error at record created  " . $last_id];
+                        respuesta(500, 500, "Total record", $payloadGastosInsert);
+                    }
+        
+
+
                 }
-                $dataFinal[] = [
-                    "statusRutas" => $respuestaFinal
-                  ];
-                  $dataFinal["rutas"] = $data;
-                  $dataFinal["update"] = $dataU;
-          //        http_response_code($respuestaFinal);
+                else
+                {
+                  $payloadGastosInsert[] = ["contactoInsert" => " Error al registrar usuario" . $conexion->error];
+                  respuesta(500, 500, "Error al registrar usuario", $payloadGastosInsert);
+                }
+            }
+            else
+            {
+                $payloadGastosInsert[] = ["contactoInsert" => " Error al registrar cliente" . $last_id];
+                respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-CLBD1", $payloadGastosInsert);
+            }
 
-            //      echo json_encode($dataFinal);
-
-            respuesta(200, 200, "Todo Chingon", $payloadGastosInsert);
-
-        } else {
-            $respuestaV = 500;
-            $res = "Error: " . $insertV . "<br>" . $conexion->error;
-            $dataV[] = $res . " Algo paso";
         }
+        else
+        {
+
+        //Analisis de la informacion
+
+
+
+        $consulta =  "SELECT * FROM clientes where id = '$cliente' " ;
+        $consultaresponse =  mysqli_query($conexion, $consulta);
+        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+        $consultaresponseDato = $row2["nombre"];
+
+
+        if (empty($consultaresponseDato)){
+            $consulta =  "SELECT * FROM clientes where nombre = '$cliente' " ;
+            $consultaresponse =  mysqli_query($conexion, $consulta);
+            $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+            $consultaresponseDato = $row2["nombre"];   
+        }
+        
 
 
 
 
 
+        $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoUnidad' " ;
+        $consultaresponse =  mysqli_query($conexion, $consulta);
+        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+        $tipoUnidadNombre = $row2["nombreUnidad"];
+
+        
+
+        $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecuacion' " ;
+        $consultaresponse =  mysqli_query($conexion, $consulta);
+        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+        $tipoDeAdecuacionNombre = $row2["nombreAdecuacion"];
+
+            if (!empty($consultaresponseDato))
+            {
+              
+
+                    $fechaEntregaTemporal = "aun nose";
+                    $entrega = "aun nose";
+                    $estatus = "Solicitud";
+                    $base_de_operaciones = "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico";
+
+                    $insertV = "INSERT INTO viajes VALUES 
+                                  (null,'$base_de_operaciones','$consultaresponseDato','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
+                                  '$fecha_disponibilidad','$tipoDeAdecuacionNombre','$tipoUnidadNombre','$unidad','','$numero_de_tramos','$diesel','$total_distancia',
+                                  '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','',false,'$estatus','Pendiente')";
+
+                    if ($conexion->query($insertV) === true)
+                    {
+                        $last_id = $conexion->insert_id;
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully " . $last_id];
+                        $contTramos = 1;
+
+
+                        if ($saveTrip==1) {
+                            $name = $last_id;
+                            $insertTrip = "INSERT INTO viajes_guardados VALUES 
+                            (null,'$name','Solicitudes','$last_id')";
+
+                            if ($conexion->query($insertTrip) === true) {
+                            
+                         
+                              $payloadGastosInsert[] = ["saveTripsInsert" => " Exito New saveTrips record created successfully " . $last_id];
+                            } else {
+                                $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips " . $insertTrip];
+                            }
+                          } else {
+                             $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips tercera " . $insertTrip];
+                          }
 
 
 
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully TOTAL DISTANCIA" . $total_distancia];
+                        $contTramos = 1;
+                        foreach ($datos["rutas"] as & $valor)
+                        {
+                            $indexRoute = $contTramos;
+                            $casetas = $valor["casetas"];
+                            $destino = $valor["destino"];
+                            $distancia = round($valor["distancia"]) / 1000;
+                            $fecha_unix = strtotime('-5 hour', strtotime($valor["fecha"]));
+                            $fecha = gmdate("Y-m-d\TH:i:s\Z", $fecha_unix);
+                            if ($indexRoute < 3)
+                            {
+                                $entrega = $valor["ciudad"];
+                                $entregaTemporal = $valor["destino"];
+                                $fechaEntregaTemporal = $fecha;
+                            }
+                            if($indexRoute==1){
+                                $fechaCargaTemporal=$fecha;
+                            }
+                            $fechaLabel = $valor["fechaLabel"];
+                            $load_time = $valor["load_time"];
+                            $tiempo = $valor["tiempo"];
+                            $total_tiempo = $total_tiempo + $distancia / 60 + $load_time;
+                            $origen = $valor["origen"];
+                            $waypoints = $valor["waypoints"];
+                            $ciudad = $valor["ciudad"];
+                            $observaciones = $valor["observaciones"];
+                            $tipo = "aun nose";
+                            $idviaje = $last_id;
+
+                            /* $insertT =  "INSERT INTO tramos VALUES
+                                                    (null,$indexRoute,'$casetas','$destino','$distancia','$fecha','$fechaLabel',' $load_time','$origen',
+                                                    '$tiempo','$waypoints','$tipo','$idviaje','$observaciones','Pendiente','','','$ciudad')"; */
+                            $insertT = "INSERT INTO tramos VALUES 
+                                                    (null,'$idviaje',$indexRoute,'$fecha','$origen','$ciudad','$destino',' $load_time','$tiempo','$casetas','$distancia',
+                                                    '$observaciones','[]','Pendiente')";
+                            if ($conexion->query($insertT) === true)
+                            {
+                                $last_id_trip = $conexion->insert_id;
+                                $payloadGastosInsert[] = ["tramosInsert" => " Exito New Travel record created successfully " . $last_id_trip];
+
+                                foreach ($casetasToll[$contTramos - 1] as & $casetas)
+                                {
+                                    $name = $casetas["name"];
+                                    $costoC = $casetas["cashCost"];
+                                    $insertCasetas = "INSERT INTO casetas(id_tramo, nombre, precio) VALUES ($last_id_trip,'$name','$costoC')";
+                                    if ($conexion->query($insertCasetas) === true)
+                                    {
+
+                                        $payloadGastosInsert[] = ["casetasInsert" => " Exito New Travel record created successfully " . $indexRoute];
+                                    }
+                                    else
+                                    {
+
+                                        $payloadGastosInsert[] = ["casetasInsert" => " Error al insertar caseta " . $indexRoute];
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                $payloadGastosInsert[] = ["tramosInsert" => " Error al insertar tramo " . $last_id];
+                            }
+                            $contTramos = $contTramos + 1;
+                        }
+
+                        $total_tiempo = $total_tiempo - 1;
+
+                        $payloadGastosInsert[] = ["TramosCompleto" => " Tramos agregados Sucess " . $last_id_trip];
+
+                        //Update
+                        $insertU = "UPDATE viajes SET fecha_salida='$fechaCargaTemporal', fecha_carga = '$fechaCargaTemporal', fecha_disponibilidad='$fecha', fecha_entrega='$fechaEntregaTemporal',destino='$entrega',ruta='$entregaTemporal',tiempo ='$total_tiempo' WHERE id = $idviaje;";
+                        if ($multidestino)
+                        {
+                            $insertU = "UPDATE viajes SET fecha_salida='$fechaCargaTemporal', fecha_carga = '$fechaCargaTemporal', fecha_disponibilidad='$fecha', fecha_entrega='$fechaEntregaTemporal',destino='Multidestino',tiempo ='$total_tiempo' WHERE id = $idviaje;";
+                        }
+
+                        if ($conexion->query($insertU) === true)
+                        {
+                            $payloadGastosInsert[] = ["updateSuccess" => " Exito al actualizar viaje" . $insert_id];
+
+                            //aqui empieza nuevo flujo
+                            $insertT = "INSERT INTO serviciosAdicionales (idViaje) VALUES ($idviaje)";
+                            if ($conexion->query($insertT) === true)
+                            {
+                                $last_id = $conexion->insert_id;
+                                $payloadGastosInsert[] = ["servAdInsert" => " Exito al insertar Servicios Adicionales " . $last_id];
+
+                                $monto = $datosServiciosAdicionales["mercanciaAsegurada"]["monto"];
+                                $precio = $datosServiciosAdicionales["mercanciaAsegurada"]["precio"];
+
+                                $insertT = "INSERT INTO mercanciaAsegurada (idServicioAdicional,monto,precio) VALUES ('$last_id','$monto','$precio' )";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["servAdMercanciaInsert" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["servAdMercanciaInsert" => " Error al insertar Mercan " . $last_id];
+                                }
+
+                                $numeroCarga = $datosServiciosAdicionales["maniobras"]["numeroCarga"];
+                                $numeroEntrega = $datosServiciosAdicionales["maniobras"]["numeroEntrega"];
+                                $precio = $datosServiciosAdicionales["maniobras"]["precio"];
+
+                                $insertT = "INSERT INTO maniobras (idServicioAdicional,numeroCarga,numeroEntrega,precio) VALUES ('$last_id','$numeroCarga','$numeroEntrega','$precio')";
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarManiobras" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["AgregarManiobras" => " Error al insertar Maniobras " . $last_id];
+                                }
+
+                                $tipo = $datosServiciosAdicionales["seguridadAdicional"]["tipo"];
+                                $precio = $datosServiciosAdicionales["seguridadAdicional"]["precio"];
+
+                                $insertT = "INSERT INTO seguridadAdicional (idServicioAdicional,tipo,precio) VALUES ('$last_id','$tipo','$precio')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarseguridadAdicional" => " Exito New Travel record created successfully " . $last_id];
+
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["AgregarseguridadAdicional" => " Error al insertar Seguridad Adicional " . $last_id];
+
+                                }
+
+                                $km = $datosServiciosAdicionales["custodia"]["km"];
+                                $precio = $datosServiciosAdicionales["custodia"]["precio"];
+
+                                $insertT = "INSERT INTO custodia (idServicioAdicional,km,precio) VALUES ('$last_id','$km','$precio')";
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["Agregarcustodia" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["Agregarcustodia" => " Error al insertar custodia " . $last_id];
+                                }
+
+                                $categoria = $productoRes["categoria"];
+                                $peso = $productoRes["peso"];
+                                $largo = $productoRes["medidas"]["largo"];
+                                $ancho = $productoRes["medidas"]["ancho"];
+                                $alto = $productoRes["medidas"]["alto"];
+                                $descripcion = $productoRes["descripcion"];
+
+                                $insertT = "INSERT INTO productosByViaje (idViaje,peso,largo,ancho,alto,descripcion) VALUES ('$idviaje','$peso','$largo','$ancho','$alto','$descripcion')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["AgregarProductos" => " Exito New Travel record created successfully " . $last_id];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["AgregarProductos" => " Error al insertar Productos " . $last_id];
+                                }
+
+                                $payloadGastosInsert[] = ["Servicios Adicionales Record OK" => " Exito New Travel record created successfully " . $last_id];
+
+                                $grupo=$metricas["idGrupo"];
+                                $rendimiento=$metricas["rendimiento"];
+                                $num_dias=$metricas["numDias"];
+                                $comision=$metricas["comision"];
+                                $viaticos=$metricas["viaticos"];
+                                $utilidad_premium=$metricas["utilidadPremium"];
+                                $gasto_premium=$metricas["gastoPremium"];
+                                $km_inicial=$metricas["KilomInicial"];
+                                $km_final=$metricas["KilomFinal"];
+
+                                $insertT = "INSERT INTO metricas_precio (grupo,rendimiento,num_dias,comision,viaticos,utilidad_premium,gasto_premium,km_inicial,km_final) VALUES ('$grupo','$rendimiento','$num_dias','$comision','$viaticos','$utilidad_premium','$gasto_premium','$km_inicial','$km_final')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                  $last_idmetricas_precio = $conexion->insert_id;
+                                  
+                                    $payloadGastosInsert[] = ["Agregarmetricas_precio" => " Exito New metricas_precio record created successfully " . $last_idmetricas_precio];
+                                }
+                                else
+                                {
+
+                                    $payloadGastosInsert[] = ["Agregarpmetricas_precio" => " Error al insertar metricas_precio " . $last_idmetricas_precio];
+                                }
 
 
-/*
-  }else {
 
-    respuesta(400, 400, "Faltan datos", $faltantes);
-  }
+                                $horario_laboral = get_horario();
+                                $insertT = "INSERT INTO precio_viaje (idViaje,idTipoPrecio,horario_laboral,precio,idMetricasPrecio) VALUES ('$idviaje','$idTipoPrecio','$horario_laboral','$totalPrecioViaje','$last_idmetricas_precio')";
+                                if ($conexion->query($insertT) === true)
+                                {
+                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Exito New precio_viaje record created successfully " . $idviaje];
+                                }
+                                else
+                                {
 
-  */
+                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Error al insertar precio_viaje " . $idviaje];
+                                }
+
+
+                                respuesta(200, 200, "Total record", $payloadGastosInsert);
+
+                                //aqui Continua el flujo parte 2
+                                
+                            }
+                            else
+                            {
+                                $payloadGastosInsert[] = ["servAdInsert" => " Error al insertar Servicios Adicionales " . $insert_id];
+                                respuesta(500, 500, "Total record", $payloadGastosInsert);
+
+                            }
+
+                        }
+                        else
+                        {
+                            $payloadGastosInsert[] = ["updateSuccess" => " Error al actualizar Viaje " . $insert_id];
+                            respuesta(500, 500, "Total record", $payloadGastosInsert);
+                        }
+
+                    }
+                    else
+                    {
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Error at record created  " . $last_id];
+                        respuesta(500, 500, "Total record", $payloadGastosInsert);
+                    }
+
+              
+            }
+            else
+            {
+
+                $payloadGastosInsert[] = ["Select cliente" => " Error al buscar cliente: " .  $cliente];
+                respuesta(404, 404, "Error al seleccionar cliente", $payloadGastosInsert);
+            }
+
+        }
+    }
+}
+else
+{
+    $payload = ["Faltantes" => $faltantes];
+    respuesta(400, 400, "Hay un error con el servidor. Llama a central Error-TARE1", $payload);
+}

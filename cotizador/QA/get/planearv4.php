@@ -198,7 +198,13 @@ if (empty($faltantes))
             $razonSocial = $datosClienteTot["datosCliente"]["razonSocial"];
 
             $insertV = "INSERT INTO clientes (nombre,rfc,telefono, email, contacto, razonSocial,tipoCliente)  VALUES ('$nombreCliente','$rfc','$telefono','$email','$contacto','$razonSocial','$tipoCliente')";
-
+                $datosClientes[]=$nombreCliente;
+                $datosClientes[]=$rfc;
+                $datosClientes[]=$telefono;
+                $datosClientes[]=$email;
+                $datosClientes[]=$contacto;
+                $datosClientes[]=$razonSocial;
+                $datosClientes[]=$tipoCliente;
             if ($conexion->query($insertV) === true)
             {
                 $last_id = $conexion->insert_id;
@@ -255,9 +261,21 @@ if (empty($faltantes))
                 if ($conexion->query($insertV) === true)
                 {
                     $last_id = $conexion->insert_id;
+
+
                     $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar usuario" . $last_id];
 
 
+                    $datosClientes[]=$idClienteFinal;
+                    $datosClientes[]=$email;
+                    $datosClientes[]=$password;
+                    $datosClientes[]=$nombreCliente;
+                    $datosClientes[]=$email;
+                  
+            
+
+
+                    $payloadGastosInsert[] = ["contactoInsert" => " Exito al insertar usuario" . $datosClientes];
 
             
                

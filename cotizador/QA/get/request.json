@@ -1,0 +1,391 @@
+{
+
+    "rutas": [
+        {
+          "origen": "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico",
+          "destino": "Anahuc 91, Col. El Mirador, Coapa, Coyoacan , Ciudad de Mexico, Mexico ",
+          "ciudad": "ACQUA PRIMA",
+          "fecha": "2020-07-07T18:48:31.527Z",
+          "tiempo": 2544,
+          "distancia": 37575,
+          "casetas": 0,
+          "polyline": "[]",
+          "load_time": 1,
+          "observaciones": "",
+          "desgloze_casetas": [
+            
+          ],
+          "waypoints": "[]",
+          "distanceToDisplay": "37,6 km"
+        },
+        {
+          "origen": "Anahuc 91, Col. El Mirador, Coapa, Coyoacan , Ciudad de Mexico, Mexico ",
+          "destino": "Acapulco, Gro., México",
+          "ciudad": "ACAPULCO",
+          "fecha": "2020-07-08T01:57:31.527Z",
+          "tiempo": 15582,
+          "distancia": 369238,
+          "casetas": 1218,
+          "polyline": "[]",
+          "load_time": 1,
+          "observaciones": "",
+          "desgloze_casetas": [
+            {
+              "cashCost": 212,
+              "name": "Tlalpan"
+            },
+            {
+              "cashCost": 212,
+              "name": "Tlalpan"
+            },
+            {
+              "cashCost": 87
+            },
+            {
+              "cashCost": 29,
+              "name": "Ing. Francisco Velasco"
+            },
+            {
+              "cashCost": 128,
+              "name": "Paso Morelos"
+            },
+            {
+              "cashCost": 190,
+              "name": "Paso Morelos"
+            },
+            {
+              "cashCost": 186,
+              "name": "Palo Blanco"
+            },
+            {
+              "cashCost": 174,
+              "name": "La Venta"
+            }
+          ],
+          "waypoints": "[]",
+          "distanceToDisplay": "369 km"
+        },
+        {
+          "origen": "Acapulco, Gro., México",
+          "destino": "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico",
+          "ciudad": "NAUCALPAN",
+          "fecha": "2020-07-08T09:29:31.527Z",
+          "tiempo": 16846,
+          "distancia": 392769,
+          "casetas": 1006,
+          "polyline": "[]",
+          "load_time": 1,
+          "observaciones": "",
+          "desgloze_casetas": [
+            {
+              "cashCost": 174,
+              "name": "La Venta"
+            },
+            {
+              "cashCost": 186,
+              "name": "Palo Blanco"
+            },
+            {
+              "cashCost": 190,
+              "name": "Paso Morelos"
+            },
+            {
+              "cashCost": 128,
+              "name": "Paso Morelos"
+            },
+            {
+              "cashCost": 29,
+              "name": "Ing. Francisco Velasco"
+            },
+            {
+              "cashCost": 87
+            },
+            {
+              "cashCost": 212,
+              "name": "Tlalpan"
+            }
+          ],
+          "waypoints": "[]",
+          "distanceToDisplay": "393 km"
+        }
+      ],
+    
+    "casetas": [
+    
+    [
+    
+    ],
+    
+    [
+    
+    {
+    
+    "cashCost": 251,
+    
+    "name": "San Marcos"
+    
+    },
+    
+    {
+    
+    "cashCost": 97,
+    
+    "name": "San Martín Texmelucan"
+    
+    },
+    
+    {
+    
+    "cashCost": 138,
+    
+    "name": "San Martín"
+    
+    },
+    
+    {
+    
+    "cashCost": 26,
+    
+    "name": "Ent. Amozoc III"
+    
+    },
+    
+    {
+    
+    "cashCost": 142,
+    
+    "name": "Amozoc"
+    
+    },
+    
+    {
+    
+    "cashCost": 290,
+    
+    "name": "71 Esperanza"
+    
+    },
+    
+    {
+    
+    "cashCost": 69,
+    
+    "name": "45 Fortín"
+    
+    }
+    
+    ],
+    
+    [
+    
+    {
+    
+    "cashCost": 69,
+    
+    "name": "45 Fortín"
+    
+    },
+    
+    {
+    
+    "cashCost": 290,
+    
+    "name": "71 Esperanza"
+    
+    },
+    
+    {
+    
+    "cashCost": 142,
+    
+    "name": "Amozoc"
+    
+    },
+    
+    {
+    
+    "cashCost": 26,
+    
+    "name": "Puebla - Acatzingo"
+    
+    },
+    
+    {
+    
+    "cashCost": 138,
+    
+    "name": "San Martín"
+    
+    },
+    
+    {
+    
+    "cashCost": 97,
+    
+    "name": "San Martín Texmelucan"
+    
+    },
+    
+    {
+    
+    "cashCost": 251,
+    
+    "name": "San Marcos"
+    
+    }
+    
+    ]
+    
+    ],
+    
+    "ejes": "2AxlesTruck",
+    
+    "operador": "",
+    
+    "isRoundTrip": true,
+    
+    "isMultidestiny": false,
+    
+    "diesel": "21.00",
+    
+    "fecha_salida": "2020-07-05 16:55:00",
+    
+    "fecha_disponibilidad": "2020-07-06T10:39:00.000Z",
+    
+    "fecha_carga": "2020-07-05T22:32:00.000Z",
+    
+    "total_distancia": 650,
+    
+    "total_casetas": 2026,
+    
+    "total_tiempo": "13",
+    
+    "numero_de_tramos": 3,
+    
+    "checkValidDate": true,
+    
+    "saveTrip": false,
+    
+    "tripName": "",
+    
+    "routeName": "",
+    
+    "seviciosAdiconales": {
+    
+    "mercanciaAsegurada": {
+    
+    "monto": 500000,
+    
+    "precio": 5000
+    
+    },
+    
+    "maniobras":
+    
+    {
+    
+    "numeroCarga": 2,
+    
+    "numeroEntrega": 3,
+    
+    "precio": 1500
+    
+    }
+    
+    ,
+    
+    "seguridadAdicional": {
+    
+    "tipo": "forte",
+    
+    "precio": 450
+    
+    },
+    
+    "custodia": {
+    
+    "km": 300,
+    
+    "precio": 2500
+    
+    }
+    
+    },
+    
+    "producto": {
+    
+    "categoria": 3,
+    
+    "peso": "1.5",
+    
+    "medidas": {
+    
+    "largo":2,
+    
+    "ancho": 2,
+    
+    "alto": 2
+    
+    },
+    
+    "descripcion": "Autos Mercedes Benz"
+    
+    },
+    
+    "unidad": "",
+        "tipoUnidad":1,
+    "tipoDeAdecuacion": 1,
+    "totalPrecioViaje": "15127275.222",
+    
+        "metricas": {
+          "idKilometros": "11",
+          "idGrupo": "4",
+          "rendimiento": "7.5",
+          "numDias": "2.0",
+          "comision": "800",
+          "viaticos": "300",
+          "utilidadPremium": "75",
+          "gastoPremium": ".25",
+          "KilomInicial": "501",
+          "KilomFinal": "600"
+        },
+    "idTipoPrecio":"1",
+    
+    "cliente": "85",
+        "password":"123456",
+    
+    
+      "datosClienteTot": {
+        "datosCliente": {
+          "nombrePropietario": "Elioth",
+          "rfc": "rfc",
+          "telefono": "telefono",
+          "email": "eliothl@email.com",
+          "contacto":"contacto",
+          "razonSocial":"RazonSocialExample"
+          },
+        "contactoGeneral":{
+          "contacto":"contactoGeneral",
+          "telefono":"Telefono",
+          "correo":"correo"
+      
+          },
+        "contactoCarga":{
+          "contacto":"contactoGeneral",
+          "telefono":"Telefono",
+          "correo":"correo"
+      
+          },
+        "contactoEntrega":{
+          "contacto":"contactoGeneral",
+          "telefono":"Telefono",
+          "correo":"correo"
+      
+          }      
+        },
+    
+    
+    "tipoCliente" : "1",
+    "base_de_operaciones": 1
+    
+    }
