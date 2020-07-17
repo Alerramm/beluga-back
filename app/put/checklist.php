@@ -117,7 +117,7 @@ if (empty($faltantes)) {
             }
 
             //Update Estatus
-            $updateEstatus =  "UPDATE viaje SET estatus='En trayecto'  WHERE id = $idViaje;";
+            $updateEstatus =  "UPDATE viajes SET estatus='En trayecto'  WHERE id = $idViaje;";
             if ($conexion->query($updateEstatus) === TRUE) {
                 $payloadEstatus = ["sqlEstatus" => " Exito Update record successfully"];
             } else {

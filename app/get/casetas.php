@@ -44,7 +44,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Analisis de la informacion
-        $consulta =  "SELECT nombre,costo FROM casetas where idTramo = '$idTramo' ";
+        $consulta =  "SELECT nombre,precio as costo FROM casetas where id_tramo = '$idTramo' ";
         $selectCasetas =  mysqli_query($conexion, $consulta);
         while ($row = $selectCasetas->fetch_array(MYSQLI_ASSOC)) {
             $casetas[] = $row;
