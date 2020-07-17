@@ -53,10 +53,6 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
-
-
-        
-
         $insertT = "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idViaje','$idEmpresa','$estatus' )";
 
         if ($conexion->query($insertT) === true)
