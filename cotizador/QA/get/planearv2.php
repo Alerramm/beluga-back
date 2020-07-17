@@ -16,27 +16,40 @@ function respuesta($codehttp, $code, $mensaje, $payload)
 
 function get_horario()
 {
- $validator=1;
+
+  $validator=1;
   $fecha = date('Y-m-d H:i:s');
 
   $dias = array('Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado');
     $fecha = $dias[date('N', strtotime($fecha))];
+
+    $payloadGastosInsert[] = ["Horario" => "Fecha" . $fecha];
+
   if($fecha == "Domingo"){
-    echo "No es dia laboral" . $fecha . "<br>";
-    $validator=0;
+      $payloadGastosInsert[] = ["Horario" => "Fecha entra en IF" . $fecha];
+
+
   }else{
  
        $hoy = getdate();
+       $hoy = 
+      
+
      
       $hora= $hoy['hours'];
+      $hora = $hora - 1;
+
+      $payloadGastosInsert[] = ["Horario" => "Hora Else  " . $hora];
+
       
-        if($hora < 8 && $hora > 18   ){
+        if($hora >8 && $hora <18 ){
           $validator=1;
           }else{
             $validator=0;
           }    
   }
 
+  $payloadGastosInsert[] = ["Horario" => "Validador   " . $validator];
 return $validator;
 }
 
@@ -61,7 +74,11 @@ $fecha_disponibilidad = gmdate("Y-m-d\TH:i:s\Z", $fecha_disponibilidad_unix);
 $isRoundTrip = $datos["isRoundTrip"];
 $unidad = $datos["unidad"];
 $numero_de_tramos = $datos["numero_de_tramos"] + 1;
-$tonelaje = $datos["tipoDeAdecuacion"];
+
+
+$tipoDeUnidad = $datos["tonelaje"];
+$tipoDeAdecucacion = $datos["tipoDeUnidad"];
+
 $total_casetas = $datos["total_casetas"];
 //$total_distancia = $datos["total_distancia"] / 1000;
 $total_distancia = $datos["total_distancia"];
@@ -77,10 +94,11 @@ $tipoCliente = $datos["tipoCliente"];
 $totalPrecioViaje = $datos["totalPrecioViaje"];
 $metricas = $datos["metricas"];
 $idTipoPrecio = $datos["idTipoPrecio"];
-$tipoUnidad = $datos["tipoUnidad"];
-$tipoDeAdecuacion = $datos["tipoDeAdecuacion"];
-$password = $datos["password"];
+$operador = $datos["operador"];
 
+
+$password = $datos["password"];
+/*
 if ($tipoUnidad == "")
 {
     array_push($faltantes, 'tipoUnidad');
@@ -108,7 +126,7 @@ if ($productoRes == "")
 if ($datosServiciosAdicionales == "")
 {
     array_push($faltantes, 'datosServiciosAdicionales');
-}
+}*/
 if ($base_de_operaciones == "")
 {
     array_push($faltantes, 'Base de Operaciones');
@@ -142,11 +160,11 @@ if ($fecha_disponibilidad == "")
     array_push($faltantes, 'Fecha de Disponibilidad');
 }
 
-
+/*
 if ($tonelaje == "")
 {
     array_push($faltantes, 'Tonelaje');
-}
+}*/
 if ($total_distancia == "")
 {
     array_push($faltantes, 'Distancia');
@@ -241,27 +259,44 @@ if (empty($faltantes))
 
 
 
-                    $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoUnidad' " ;
+            
+               
+
+
+
+                    $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoDeUnidad' " ;
                     $consultaresponse =  mysqli_query($conexion, $consulta);
                     $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
-                    $tipoUnidadNombre = $row2["nombreUnidad"];
+                    $tonelaje = $row2["nombreUnidad"];
+
+
+
+                    if(empty($tonelaje)){
+                        $tonelaje=$tipoDeUnidad;
+
+                    }
             
                     
             
-                    $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecuacion' " ;
+                    $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecucacion' " ;
                     $consultaresponse =  mysqli_query($conexion, $consulta);
                     $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
-                    $tipoDeAdecuacionNombre = $row2["nombreAdecuacion"];
+                    $tipoDeAdecuacion1 = $row2["nombreAdecuacion"];
+
+                    if(empty($tipoDeAdecuacion1)){
+                        $tipoDeAdecuacion1=$tipoDeAdecucacion;
+
+                    }
 
 
                     //Termina Enrollamiento
                     $fechaEntregaTemporal = "aun nose";
                     $entrega = "aun nose";
-                    $estatus = "Solicitud";
+                    $estatus = "Pendiente";
                     $base_de_operaciones = "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico";
                     $insertV = "INSERT INTO viajes VALUES 
                                         (null,'$base_de_operaciones','$nombreCliente','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
-                                        '$fecha_disponibilidad','$tipoUnidadNombre','$tipoDeAdecuacionNombre','$unidad','','$numero_de_tramos','$diesel','$total_distancia',
+                                        '$fecha_disponibilidad','$tipoDeAdecuacion1','$tonelaje','$unidad','$operador','$numero_de_tramos','$diesel','$total_distancia',
                                         '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','',false,'$estatus','Pendiente')";
                             
                     if ($conexion->query($insertV) === true)
@@ -480,6 +515,21 @@ if (empty($faltantes))
                                 }
 
 
+                                $insertT = "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idviaje','1','Confirmado' )";
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                   
+                                    $payloadGastosInsert[] = ["Insert empresa_viaje" => " Exito New empresa_viaje record created successfully " . $idviaje];
+                                   
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["Insert empresa_viaje" => " Error al insertar empresa_viaje " . $idviaje];
+                                  
+                                }
+
+
                                 respuesta(200, 200, "Total record", $payloadGastosInsert);
 
                                 
@@ -539,17 +589,40 @@ if (empty($faltantes))
 
 
 
-        $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoUnidad' " ;
-        $consultaresponse =  mysqli_query($conexion, $consulta);
-        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
-        $tipoUnidadNombre = $row2["nombreUnidad"];
 
-        
+                    if (empty($consultaresponseDato)){
+                        $consulta =  "SELECT * FROM clientes where nombre = '$cliente' " ;
+                        $consultaresponse =  mysqli_query($conexion, $consulta);
+                        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                        $consultaresponseDato = $row2["nombre"];   
+                    }
 
-        $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecuacion' " ;
-        $consultaresponse =  mysqli_query($conexion, $consulta);
-        $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
-        $tipoDeAdecuacionNombre = $row2["nombreAdecuacion"];
+
+
+                  
+                    $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoDeUnidad' " ;
+                    $consultaresponse =  mysqli_query($conexion, $consulta);
+                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                    $tonelaje = $row2["nombreUnidad"];
+
+
+
+                    if(empty($tonelaje)){
+                        $tonelaje=$tipoDeUnidad;
+
+                    }
+            
+                    
+            
+                    $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecucacion' " ;
+                    $consultaresponse =  mysqli_query($conexion, $consulta);
+                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                    $tipoDeAdecuacion1 = $row2["nombreAdecuacion"];
+
+                    if(empty($tipoDeAdecuacion1)){
+                        $tipoDeAdecuacion1=$tipoDeAdecucacion;
+
+                    }
 
             if (!empty($consultaresponseDato))
             {
@@ -557,18 +630,18 @@ if (empty($faltantes))
 
                     $fechaEntregaTemporal = "aun nose";
                     $entrega = "aun nose";
-                    $estatus = "Solicitud";
+                    $estatus = "Pendiente";
                     $base_de_operaciones = "Cda. del Proton 12, Industrial Tlatilco 2, 53470 Naucalpan de Juarez, Mex., Mexico";
 
                     $insertV = "INSERT INTO viajes VALUES 
                                   (null,'$base_de_operaciones','$consultaresponseDato','','$routeName','$fecha_salida','$fecha_carga','$fechaEntregaTemporal',
-                                  '$fecha_disponibilidad','$tipoUnidadNombre','$tipoDeAdecuacionNombre','$unidad','','$numero_de_tramos','$diesel','$total_distancia',
+                                  '$fecha_disponibilidad','$tipoDeAdecuacion1','$tonelaje','$unidad','$operador','$numero_de_tramos','$diesel','$total_distancia',
                                   '$ejes','$total_casetas','$total_tiempo','$total_tiempo_formato','$isRoundTrip','$checkFecha','$multidestino','',false,'$estatus','Pendiente')";
 
                     if ($conexion->query($insertV) === true)
                     {
                         $last_id = $conexion->insert_id;
-                        $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully " . $last_id];
+                        $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully TOTAL DISTANCIA" . $last_id];
                         $contTramos = 1;
                         foreach ($datos["rutas"] as & $valor)
                         {
@@ -759,14 +832,30 @@ if (empty($faltantes))
                                 $insertT = "INSERT INTO precio_viaje (idViaje,idTipoPrecio,horario_laboral,precio,idMetricasPrecio) VALUES ('$idviaje','$idTipoPrecio','$horario_laboral','$precio','$last_idmetricas_precio')";
                                 if ($conexion->query($insertT) === true)
                                 {
-                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Exito New precio_viaje record created successfully " . $idviaje];
+                                    $payloadGastosInsert[] = ["Agregar precio_viaje" => " Exito New precio_viaje record created successfully " . $idviaje];
                                 }
                                 else
                                 {
 
-                                    $payloadGastosInsert[] = ["Agregarprecio_viaje" => " Error al insertar precio_viaje " . $idviaje];
+                                    $payloadGastosInsert[] = ["Agregar precio_viaje" => " Error al insertar precio_viaje " . $idviaje];
                                 }
 
+
+
+                                $insertT = "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idviaje','1','Confirmado' )";
+                                
+
+                                if ($conexion->query($insertT) === true)
+                                {
+                                   
+                                    $payloadGastosInsert[] = ["Insert empresa_viaje" => " Exito New empresa_viaje record created successfully " . $idviaje];
+                                   
+                                }
+                                else
+                                {
+                                    $payloadGastosInsert[] = ["Insert empresa_viaje" => " Error al empresa_viaje " . $idviaje];
+                                  
+                                }
 
                                 respuesta(200, 200, "Total record", $payloadGastosInsert);
 
@@ -798,7 +887,8 @@ if (empty($faltantes))
             }
             else
             {
-
+      
+                $payloadGastosInsert[] = ["Select cliente" => " Error al buscar cliente: __ " .  $consulta];
                 $payloadGastosInsert[] = ["Select cliente" => " Error al buscar cliente: " .  $cliente];
                 respuesta(404, 404, "Error al seleccionar cliente", $payloadGastosInsert);
             }
