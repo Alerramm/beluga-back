@@ -43,29 +43,20 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Consulta viajes
-        $consulta = "SELECT id,cliente , viaje, precio,sum(precio+gEstadias+gManiobras+Adicionales+desviacion) monto, sum(gEstadias+gManiobras+Adicionales+desviacion) Adic, sum(gManiobras) gManiobras, factura,fecFacturacion, montoPagado FROM operaciones 
-		where  status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020'  group by viaje ORDER BY fecFacturacion  DESC, viaje DESC";
+        $consulta = "SELECT id,cliente , viaje, precio,sum(precio+gEstadias+gManiobras+Adicionales+desviacion) monto, sum(gEstadias+gManiobras+Adicionales+desviacion) Adic, factura,fecFacturacion, montoPagado FROM operaciones 
+		where status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020'  group by viaje ORDER BY fecFacturacion  DESC, viaje DESC";
         if ($id !== null) {
-            $consulta = "SELECT id,cliente , viaje, precio,sum(precio+gEstadias+gManiobras+Adicionales+desviacion) monto, sum(gEstadias+gManiobras+Adicionales+desviacion) Adic, factura,fecFacturacion, montoPagado FROM operaciones 
-		where status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020' and id=$id  group by viaje ORDER BY fecFacturacion  DESC, viaje DESC";
+            $consulta = "SELECT id,cliente ,viaje,sum(precio+gEstadias+gManiobras+Adicionales+desviacion) monto,sum(gEstadias+gManiobras+Adicionales+desviacion) 
+			Adic,factura,fecFacturacion, montoPagado FROM operaciones where status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020'   and id=$id ";
         }
 
         $facturas = mysqli_query($conexion, $consulta);
         while ($row = $facturas->fetch_array(MYSQLI_ASSOC)) {
-            if ($row['cliente'] =='Dicka' && $row['viaje'] > '13040') {
-			   if ($row['monto'] > 0) {
-				   
-                $row['monto'] = round($row['monto'] + ($row['monto'] * .16) - ($row['precio'] * .04) - ($row['gManiobras'] * .06) , 2);
-                $row['montoPagado'] = round($row['montoPagado'], 2);
-                $datafacturas[] = $row;
-              }
-			} else{	
-    		   if ($row['monto'] > 0) {
+            if ($row['monto'] > 0) {
                 $row['monto'] = round($row['monto'] + ($row['monto'] * .16) - ($row['precio'] * .04), 2);
                 $row['montoPagado'] = round($row['montoPagado'], 2);
                 $datafacturas[] = $row;
-              }
-			} 
+            }
         }
 
         //Response
@@ -75,11 +66,11 @@ if (empty($faltantes)) {
             //Consulta viajes
             $consultaDiltex = "SELECT id,cliente, viaje, precio, IF(date(fecha) >'2020-01-14', sum(cajas * 86) ,sum(cajas * 80) ) AS monto, sum(gEstadias+gManiobras+Adicionales+desviacion) Adic, factura,fecFacturacion, montoPagado FROM operaciones WHERE cajas <> '' and cliente like '%diltex ilu%' and status not in ('Carga*','99','Cancelado') and (destino like '%418%' or destino like '%506%' or entregar like '%418%' or entregar like '%506%') and status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020' Group by viaje ORDER BY fecFacturacion  DESC, viaje DESC";
             if ($id !== null) {
-                $consultaDiltex = "SELECT id,cliente, viaje, precio, IF(date(fecha) >'2020-01-14', sum(cajas * 86) ,sum(cajas * 80) ) AS monto, sum(gEstadias+gManiobras+Adicionales+desviacion) Adic, factura,fecFacturacion, montoPagado FROM operaciones WHERE cajas <> '' and cliente like '%diltex ilu%' status not in ('Carga*','99','Cancelado') and (destino like '%418%' or destino like '%506%' or entregar like '%418%' or entregar like '%506%') and status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020' and id=$id Group by viaje ORDER BY fecFacturacion  DESC, viaje DESC";
+                $consultaDiltex = "SELECT id,cliente, viaje, IF(date(fecha) >'2020-01-14', sum(cajas * 86) ,sum(cajas * 80) ) AS monto,sum(gEstadias+gManiobras+Adicionales+desviacion) Adic,factura,fecFacturacion, montoPagado FROM operaciones WHERE cajas <> '' and cliente like '%diltex ilu%' and status not in ('Carga*','99','Cancelado') and (destino like '%418%' or destino like '%506%' or entregar like '%418%' or entregar like '%506%') and status ='27' and factura <> 'N/A' and year(fecFacturacion)='2020'  and id=$id";
             }
             $facturasDiltex = mysqli_query($conexion, $consultaDiltex);
             while ($row = $facturasDiltex->fetch_array(MYSQLI_ASSOC)) {
-                $row['monto'] = round($row['monto'] + ($row['monto'] * .16) - ($row['monto'] * .04), 2);
+                $row['monto'] = round($row['monto'] + ($row['monto'] * .16) - ($row['precio'] * .04), 2);
                 $row['montoPagado'] = round($row['montoPagado'], 2);
                 $datafacturas[] = $row;
             }
