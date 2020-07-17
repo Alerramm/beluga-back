@@ -11,11 +11,19 @@ $faltantes = [];
 
 //datos Request
 $datos = json_decode(file_get_contents('php://input'), true);
+
+//variables tabla empresa_viaje
+
 $idViaje = $datos["idViaje"];
 $idEmpresa = $datos["idEmpresa"];
+$estatusEmpresaViaje = $datos["estatusEmpresaViaje"];
+
+
+//variables  tabla viajes
+$estatus_app = $datos["estatus_app"];
 $estatus = $datos["estatus"];
-
-
+$unidad = $datos["unidad"];
+$operador = $datos["operador"];
 
 
 
@@ -57,20 +65,45 @@ if (empty($faltantes)) {
 
         
 
-        $insertT = "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idViaje','$idEmpresa','$estatus' )";
+        $insertT = "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idViaje','$idEmpresa','$estatusEmpresaViaje' )";
 
         if ($conexion->query($insertT) === true)
         {
             $last_id = $conexion->insert_id;
             $payloadGastosInsert[] = ["Insert empresa_viaje" => " Exito New empresa_viaje record created successfully " . $last_id];
-            respuesta(200, 200,  "Respuesta exitosa", $payloadGastosInsert);
+          
         }
         else
         {
             $payloadGastosInsert[] = ["Insert empresa_viaje" => " Error al insertar Mercan " . $last_id];
-            respuesta(200, 200,  "Respuesta exitosa", $payloadGastosInsert);
+          
         }
 
+
+        $updateEstatus =  "UPDATE viajes SET 
+        estatus_app='$estatus_app ',
+        estatus='$estatus',
+        unidad='$unidad',
+        operador='$operador'
+        
+             WHERE id = '$idViaje' ";
+
+
+
+        if ($conexion->query($updateEstatus) === TRUE) {
+        $viajesActualizados =  mysqli_query($conexion, $consulta);
+        $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
+
+
+        $payloadGastosInsert = ["Exito al actualizar Viaje" => "Viaje Actualizado", "id" => $idViaje];
+
+      
+        } else {
+        $payloadGastosInsert = ["Error al actualizar Viaje" => " Error al actualizar Viaje " . $last_id];
+ 
+        }
+
+        respuesta(200, 200,  "Respuesta exitosa", $payloadGastosInsert);
 
        
     }

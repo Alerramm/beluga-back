@@ -64,6 +64,8 @@ if (empty($faltantes)) {
             $tramos[] = $row2;
         }
         $row["emisor_cliente"]='true';
+
+        
         $row["tramos"]=$tramos;
 
         //Response

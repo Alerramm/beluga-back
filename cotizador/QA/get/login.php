@@ -51,7 +51,7 @@ if (empty($faltantes)) {
         //Analisis de la informacion
         //nombre,rfc,telefono, email, contacto, razonSocial,tipoCliente
         //usuarios (id,usuario ,password,nombre,mail,perfil)
-        $consulta =  "SELECT A.usuario,A.password,A.nombre,A.mail,A.perfil,B.nombre, B.rfc, B.telefono, B.email, B.contacto, B.razonSocial,B.tipoCliente  FROM usuarios A INNER JOIN clientes B ON A.id = B.id WHERE A.usuario='$user' and A.password='$pass' and A.perfil='CLIENTE'";
+        $consulta =  "SELECT B.id as idCliente ,A.usuario,A.password,A.nombre,A.mail,A.perfil,B.nombre, B.rfc, B.telefono, B.email, B.contacto, B.razonSocial,B.tipoCliente  FROM usuarios A INNER JOIN clientes B ON A.id = B.id WHERE A.usuario='$user' and A.password='$pass' and A.perfil='CLIENTE'";
 
         $usuarios =  mysqli_query($conexion, $consulta);
         $row = mysqli_fetch_array($usuarios, MYSQLI_ASSOC);
