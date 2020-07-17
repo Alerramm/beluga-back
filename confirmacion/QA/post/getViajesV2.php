@@ -53,36 +53,23 @@ if (!empty($faltantes)) {
       
 
 
-        $consulta =  "SELECT *  FROM viajes where cliente ='$cliente'  AND estatus IN ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto') ";
+        $consulta =  "SELECT A.id, A.fecha_carga, A.unidad  , B.idTipoPrecio, B.precio
+        FROM viajes A INNER JOIN precio_viaje B on A.id = B.idViaje
+        WHERE A.cliente ='$cliente'  
+        AND A.estatus IN ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto') ;";
         
         $viaje =  mysqli_query($conexion, $consulta);
 
         while ($row = $viaje->fetch_array(MYSQLI_ASSOC)) {
                 $idViaje = $row["id"];
-                    $consulta2 =  "SELECT *  FROM tramos where idViaje ='$idViaje' ";
+                    $consulta2 =  "SELECT destino FROM tramos where idViaje ='$idViaje' ";
                     $tramo =  mysqli_query($conexion, $consulta2);
                     while ($row2 = $tramo->fetch_array(MYSQLI_ASSOC)) {
                       
-                        $idTramo = $row2["id"];
 
-                        $embarques =[];
-                        $consulta3 =  "SELECT *  FROM embarques where idTramo ='$idTramo' ";
-                        $embarque =  mysqli_query($conexion, $consulta3);
-                        while ($row3 = $embarque->fetch_array(MYSQLI_ASSOC)) {
-                            $embarques [] = $row3;
-                         }
-                       
-
-                         $row2["embarques"] = $embarques;
                          $tramos [] = $row2;
                         
-                        
-                        
-                         
-                       
-
-
-                    }
+                         }
                     $row ["tramosobject"] = $tramos;
                     $viajetotal [] = $row;  
 

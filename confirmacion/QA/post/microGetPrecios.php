@@ -181,33 +181,16 @@ if (empty($faltantes)) {
 
                                  
                                 }
-                                $total = [
-                                    "basico" =>[
-                                    "precio" => $basico,
-                                    "id" =>3
-                                    ],
-
-
-                                    "premiumprepago" =>[
-                                        "precio" => $premiumprepago,
-                                        "id" =>1
-                                    ],
-
-                                        "premiumpospago" =>[
-                                            "precio" => $premiumpospago,
-                                            "id" =>2],
-
-                                      
-                                            
-                                            ];
-
-                                            $total["metricas"]=$rowDatos;
-
-
-
-                   
-
-                         //       $total["metricas"]= $rowDatos;  
+                                if ($idCliente == 0){
+                                    $total = ["premiumprepago" => $premiumprepago];
+                                    
+                                }else{
+                                    $total = [
+                                        "basico" => $basico,
+                                        "premiumprepago" => $premiumprepago,
+                                        "premiumpospago" => $premiumpospago,
+                                        "contrato" => $contrato];
+                                }
 
                                 array_push($payloadGastosInsert, "Operaciones", "datos" . $total );
                                 respuesta(200, 200, "Resultados", $total);

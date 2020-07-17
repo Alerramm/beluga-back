@@ -11,20 +11,14 @@ $faltantes = [];
 
 //datos Request
 $datos = json_decode(file_get_contents('php://input'), true);
-$tipo = $datos["tipo"];
-$subtotal = $datos["subtotal"];
-$iva = $datos["iva"];
-$total = $datos["total"];
-$idViaje = $datos["idViaje"];
-
 $idTramo = $datos["idTramo"];
-$observacion = $datos["observacion"];
+
+$cajas = $datos["cajas"];
+$cajas_entregadas = $datos["cajas_entregadas"];
+$cajas_rechazadas = $datos["cajas_rechazadas"];
+$idTramoDevolucion = $datos["idTramoDevolucion"];
+$idTramo = $datos["idTramo"];
 $estatus = $datos["estatus"];
-$comprobado = $datos["comprobado"];
-$cobroCliente = $datos["cobroCliente"];
-$autoriza = $datos["autoriza"];
-$fechaAutorizacion = $datos["fechaAutorizacion"];
-$montoAprobado = $datos["montoAprobado"];
 
 
 
@@ -47,9 +41,8 @@ function respuesta($codehttp, $code, $mensaje, $payload)
 if ($idViaje == "") {
     array_push($faltantes, 'idViaje');
 }
-if ($tipo == "") {
-    array_push($faltantes, 'tipo');
-}
+
+
 
 
 if (empty($faltantes)) {
@@ -64,29 +57,14 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
-        //Analisis de la informacion
-        $consulta =  "SELECT * FROM gastos where idViaje = '$idViaje' AND tipo ='$tipo'" ;
-        $viajes =  mysqli_query($conexion, $consulta);
-        $row = mysqli_fetch_array($viajes, MYSQLI_ASSOC);
-
-        if (empty($row)) {
-            respuesta(200, 404, "No hay registros con este ID de viaje O tipo de gasto" . $id, []);
-        } else {
-            //Update
-            $updateEstatus =  "UPDATE gastos SET 
-                                                subtotal='$subtotal ', 
-                                                iva='$iva',
-                                                total= '$total',
-                                                idTramo =$idTramo,
-                                                observacion = '$observacion',
-                                                estatus = '$estatus',
-                                                comprobado = '$comprobado',
-                                                cobroCliente = '$cobroCliente',
-                                                autoriza = '$autoriza',
-                                                fechaAutorizacion='$fechaAutorizacion',
-                                                montoAprobado = '$montoAprobado'
+            $updateEstatus =  "UPDATE embarques SET 
+                                                cajas='$cajas ',
+                                                cajas_entregadas='$cajas_entregadas',
+                                                cajas_rechazadas='$cajas_rechazadas',
+                                                idTramo='$idTramo',
+                                                estatus='$estatus',
                                                 
-                                                WHERE idViaje = $idViaje AND tipo ='$tipo'";
+                                                     WHERE id = '$idTramo' ";
 
 
 
@@ -95,14 +73,14 @@ if (empty($faltantes)) {
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
 
 
-                $payload = ["sql" => "Exito Update record successfully", "id" => $row["id"]];
+                $payload = ["sql" => "Viaje Actualizado", "id" => $idTramo];
 
                 respuesta(200, 200,  "Respuesta exitosa", $payload);
             } else {
                 $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
                 respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-TAUPD", $payload);
             }
-        }
+       
     }
 } else {
     $payload = ["Faltantes" => $faltantes];

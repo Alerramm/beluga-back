@@ -96,14 +96,14 @@ foreach ($datosArreglo as &$datos) {
                     $payloadAuth = ["sqlEstatusAuth" => " Exito New Travel record created successfully " . $last_id];
                     $fecha_disponibilidad = $rowViaje['fecha_disponibilidad'];
                     $unidad = substr($rowViaje['unidad'], 0, strpos($rowViaje['unidad'], ' '));
-                    $insertItinerarioUnidades =  "INSERT INTO intinerarioUnidades (fechaInicial,fechaFinal,camion,motivo,numero) values 
-                ('$fecha_carga','$fecha_disponibilidad','$unidad','Viaje','$viajeOperaciones')";
+                    $insertItinerarioUnidades =  "INSERT INTO intinerarioUnidades (fechaInicial,fechaFinal,camion,motivo) values 
+                ('$fecha_carga','$fecha_disponibilidad','$unidad','Viaje')";
 
                     if ($conexion->query($insertItinerarioUnidades) === TRUE) {
                         $last_id = $conexion->insert_id;
                         $payloadItinerarioUnidades = ["sqlEstatusItinerarioUnidades" => " Exito New Travel record created successfully " . $last_id];
-                        $insertItinerarioConductores =  "INSERT INTO intinerarioConductores (fechaInicial,fechaFinal,nombre,motivo,numero) values 
-                    ('$fecha_carga','$fecha_disponibilidad','$operador','Viaje','$viajeOperaciones')";
+                        $insertItinerarioConductores =  "INSERT INTO intinerarioConductores (fechaInicial,fechaFinal,nombre,motivo) values 
+                    ('$fecha_carga','$fecha_disponibilidad','$operador','Viaje')";
                         if ($conexion->query($insertItinerarioConductores) === TRUE) {
                             $last_id = $conexion->insert_id;
                             $payloadItinerarioConductores = ["sqlEstatusItinerarioConductores" => " Exito New Travel record created successfully " . $last_id];

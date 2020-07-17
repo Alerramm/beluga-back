@@ -40,8 +40,6 @@ foreach ($datosArreglo as &$datos) {
     $comision = $datos["comision"];
     $transito = $datos["transito"];
     $maniobras = $datos["maniobras"];
-	$externo = $datos["externo"];
-	$custodia = $datos["custodia"];
     $datosgastos = $datos["gastos"];
 
 
@@ -79,11 +77,7 @@ foreach ($datosArreglo as &$datos) {
                 $fecha_carga = $rowViaje['fecha_carga'];
                 $operador = $rowViaje['operador'];
                 $destino = $rowViaje['destino'];
-                $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(
-				fecha,operador,destino,viaje,PREdiesel,Precasetas,PREviaticos,PREcomision,PREtransito,
-				PREmaniobras,PREexterno,PREcustodia,solicita,idViaje) VALUES (
-				'$fecha_carga', '$operador','$destino',$idViaje,'$diesel','$casetas','$viaticos',
-				'$comision','$transito','$maniobras','$externo','$custodia','',$idViaje)";
+                $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,PREdiesel,Precasetas,PREviaticos,PREcomision,PREtransito,PREmaniobras,solicita,idViaje) VALUES ('$fecha_carga', '$operador','$destino',$idViaje,'$diesel','$casetas','$viaticos','$comision','$transito','$maniobras','',$idViaje)";
 
                 /* foreach ($datosgastos as &$datos2) {
                     //const 
@@ -122,6 +116,10 @@ foreach ($datosArreglo as &$datos) {
                 if ($conexion->query($insertDesgloseAuth) === TRUE) {
                     $last_id = $conexion->insert_id;
                     $payloadAuth = ["sqlEstatusAuth" => " Exito New Travel record created successfully " . $last_id];
+
+
+
+
 
 
                     $cliente = $rowViaje['cliente'];
