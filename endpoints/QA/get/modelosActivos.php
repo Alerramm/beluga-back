@@ -18,6 +18,7 @@ $fechaFinalV = gmdate("Y-m-d\TH:i:s\Z", $fechaFinalV_unix);
 $datos["fecha_final"] = $fechaFinalV;
 $toneladas = $datos["toneladas"];
 $tipo = $datos["tipo"];
+$idEmpresa = $datos["idEmpresa"];
 
 
 if ($fechaInicialV == null || $fechaFinalV == null) {
@@ -27,7 +28,7 @@ if ($fechaInicialV == null || $fechaFinalV == null) {
   http_response_code(200);
   echo json_encode($data);
 } else {
-  $consultaToneladasTipo = "SELECT camion,ejes,rendimientoLocal,rendimientoForaneo FROM unidades WHERE toneladas ='$toneladas' AND tipo = '$tipo' and activa ='Si'";
+  $consultaToneladasTipo = "SELECT camion,ejes,rendimientoLocal,rendimientoForaneo FROM unidades WHERE toneladas ='$toneladas' AND tipo = '$tipo' and activa ='Si' and idEmpresa = $idEmpresa";
   $consultaDisponibilidad = "SELECT distinct (camion) FROM intinerarioUnidades WHERE (fechaInicial  <= '$fechaInicialV' AND fechaFinal >= '$fechaFinalV') OR (fechaInicial BETWEEN '$fechaInicialV' AND '$fechaFinalV') OR (fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV')";
   //$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
   //Query para obtener clientes

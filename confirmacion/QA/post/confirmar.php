@@ -34,14 +34,12 @@ foreach ($datosArreglo as &$datos) {
 
     $idViaje = $datos["idViaje"];
     $precio = $datos["precio"];
-    $dias = $datos["dias"];
-    $disel = $datos["disel"];
+    $diesel = $datos["diesel"];
     $casetas = $datos["casetas"];
-    $alimentos = $datos["alimentos"];
+    $viaticos = $datos["viaticos"];
     $comision = $datos["comision"];
     $transito = $datos["transito"];
     $maniobras = $datos["maniobras"];
-    $direccion_cliente  =  $datos["direccion_cliente"];
     $datosgastos = $datos["gastos"];
 
 
@@ -49,15 +47,6 @@ foreach ($datosArreglo as &$datos) {
     //Validacion de Datos
     if ($idViaje == "") {
         array_push($faltantes, 'idViaje');
-    }
-    if ($dias == "") {
-        array_push($faltantes, 'dias');
-    }
-    if ($alimentos == "") {
-        array_push($faltantes, 'alimentos');
-    }
-    if ($direccion_cliente == "") {
-        array_push($faltantes, 'direccion_cliente');
     }
 
     if (empty($faltantes)) {
@@ -88,7 +77,24 @@ foreach ($datosArreglo as &$datos) {
                 $fecha_carga = $rowViaje['fecha_carga'];
                 $operador = $rowViaje['operador'];
                 $destino = $rowViaje['destino'];
-                $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,PREdiesel,Precasetas,PREalimentos,PREcomision,PREtransito,PREmaniobras,solicita) VALUES ('$fecha_carga', '$operador','$destino','$viajeOperaciones','$disel','$casetas','$alimentos','$comision','$transito','$maniobras','')";
+                $insertDesgloseAuth =  "INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,PREdiesel,Precasetas,PREviaticos,PREcomision,PREtransito,PREmaniobras,solicita,idViaje) VALUES ('$fecha_carga', '$operador','$destino',$idViaje,'$diesel','$casetas','$viaticos','$comision','$transito','$maniobras','',$idViaje)";
+
+                /* foreach ($datosgastos as &$datos2) {
+                    //const 
+                    $faltantes = [];
+                    //datos Request
+                    $tipo = $datos2["tipo"];
+                    $presupuesto = $datos2["presupuesto"];
+                    $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
+
+                    if ($conexion->query($insertDesgloseAuth2) === TRUE) {
+
+                        $last_id = $conexion->insert_id;
+                        $payloadGastosInsert[] = ["GastosInsert" => " Exito New Travel record created successfully " . $last_id];
+                    } else {
+                        $payloadGastosInsert[] = ["sql" => "Error: " . "<br>" . $conexion->error];
+                    }
+                } */
 
                 foreach ($datosgastos as &$datos2) {
                     //const 
@@ -96,7 +102,7 @@ foreach ($datosArreglo as &$datos) {
                     //datos Request
                     $tipo = $datos2["tipo"];
                     $presupuesto = $datos2["presupuesto"];
-                    $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
+                    $insertDesgloseAuth2 =  "UPDATE gastos set presupuesto = '$presupuesto' WHERE idViaje = $idViaje and tipo = '$tipo'";
 
                     if ($conexion->query($insertDesgloseAuth2) === TRUE) {
 
@@ -122,9 +128,9 @@ foreach ($datosArreglo as &$datos) {
                     $hora_carga = date($fecha_carga, "H:i");
                     $hora_entrega = date($hora_entrega, "H:i");
                     $entrega = $rowViaje["ruta"];
-                    $insertOperaciones =  "INSERT INTO operaciones (viaje,fecha,cliente,cargar,unidad,operador,destino,fechaEntrega,entregar,status,status_factura,kms,precio,cargar_hora,horaEntrega,diesel,casetas,comision,alimentos,transito,revision,dias,maniobras,idViaje) VALUES 
-                        ('$viajeOperaciones','$fecha_carga','$cliente','$direccion_cliente','$unidad','$operador','$destino','$fecha_entrega',
-                        '$entrega','99','38','$distancia','$precio','$hora_carga','$hora_entrega','0','0','0','0','0','$fecha_disponibilidad','$dias','0','$idViaje')";
+                    $insertOperaciones =  "INSERT INTO operaciones (viaje,fecha,cliente,cargar,unidad,operador,destino,fechaEntrega,entregar,status,status_factura,kms,precio,cargar_hora,horaEntrega,diesel,casetas,comision,viaticos,transito,revision,dias,maniobras,idViaje) VALUES 
+                        ('$idViaje','$fecha_carga','$cliente','','$unidad','$operador','$destino','$fecha_entrega',
+                        '$entrega','99','38','$distancia','$precio','$hora_carga','$hora_entrega','0','0','0','0','0','$fecha_disponibilidad','0','0','$idViaje')";
                     if ($conexion->query($insertOperaciones) === TRUE) {
                         $last_id = $conexion->insert_id;
                         $payloadOperaciones = ["sqlEstatusOperaciones" => " Exito New Travel record created successfully " . $last_id];
