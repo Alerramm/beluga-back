@@ -25,19 +25,21 @@ if ($fechaInicialV == null || $fechaFinalV == null) {
 } else {
   /*   $consultaDisponibilidad = "SELECT nombre FROM intinerarioConductores WHERE fechaInicial  BETWEEN '$fechaInicialV' AND '$fechaFinalV' OR fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV'";
  */
-  $consultaDisponibilidad = "SELECT DISTINCT(nombre) FROM intinerarioConductores WHERE (fechaInicial  <= '$fechaInicialV' AND fechaFinal >= '$fechaFinalV') OR (fechaInicial BETWEEN '$fechaInicialV' AND '$fechaFinalV') OR (fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV')";
+  $consultaDisponibilidad = "SELECT DISTINCT(nombre), id FROM intinerarioConductores WHERE (fechaInicial  <= '$fechaInicialV' AND fechaFinal >= '$fechaFinalV') OR (fechaInicial BETWEEN '$fechaInicialV' AND '$fechaFinalV') OR (fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV')";
   //$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
   //Query para obtener clientes
-  $consulta =  "SELECT nombre FROM usuarios where perfil = 'OPERADOR'";
+  $consulta =  "SELECT nombre, id FROM usuarios where perfil = 'OPERADOR'";
   $conductores =  mysqli_query($conexion, $consulta);
   $conductoresD =  mysqli_query($conexion, $consultaDisponibilidad);
   while ($row2 = $conductoresD->fetch_array(MYSQLI_ASSOC)) {
+    $row2["key"] = $row2["id"];
     $data2[] = $row2;
   }
   while ($row = $conductores->fetch_array(MYSQLI_ASSOC)) {
     if (in_array($row, $data2)) {
       /* $data3[] = $row; */
     } else {
+      $row["key"] = $row["id"];
       $data[] = $row;
     }
   }
@@ -47,6 +49,8 @@ if ($fechaInicialV == null || $fechaFinalV == null) {
 
   if ($data == null) {
     $data[] = [
+      "key" => 0,
+      "id" => 0,
       "nombre" => "No hay unidades disponibles"
     ];
     http_response_code(200);

@@ -21,15 +21,15 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
 	$desti = $row3['entrega'];
 	$fecha_disponibilidad = $row3['fecha_disponibilidad'];
 	$fechaEntrega = $row3['fecha_entrega'];
-	$total_distancia = $row3['distancia'] / 1000;
+	$total_distancia = $row3['distancia'];
 	$total_casetas = $row3['casetas'];
 	$total_gasolina = 0;
 	$total_gastos = 0;
 	$total_tiempo = $row3['tiempo'];
 	$tonelaje = $row3['unidad_tipo'];
-	$unidMod = $row3['unidad_modelo'];
 	$vuelta = $row3['redondo'];
 	$ciudad = $row3['destino'];
+
 
 	$cons1_mysql = "SELECT observaciones,tramo FROM  tramos where idviaje ='$idV' order by tramo asc";
 	//echo $cons_mysql;
@@ -45,28 +45,27 @@ while ($row3 = mysqli_fetch_assoc($result3)) {
 	while ($edo2 = mysqli_fetch_assoc($resCon2)) {
 		$desti = $edo2['entrega'];
 	}
-
-	//echo $desti;
-	$cons2_mysql = "SELECT idMetricasPrecio  FROM  precio_viaje where idViaje ='$idV'";
-	//echo $cons2_mysql;
-	$resCon2 = mysqli_query($enlace, $cons2_mysql);
-	while ($edo2 = mysqli_fetch_assoc($resCon2)) {
-		$idMet = $edo2['idMetricasPrecio'];
-	}
 	//echo $desti;
 
-	$cons_mysql = "SELECT idTipo,tipo, descripcion, viaticos,porcGto, numDias,kmsIni,kmsFin FROM  tipoViajeAct where '$total_distancia' between kmsIni and kmsFin";
+	$cons_mysql = "SELECT tipo, descripcion, viaticos, numDias FROM  tipoViajeAct where '$total_distancia' between kmsIni and kmsFin";
 	//echo $cons_mysql;
 	$resCon = mysqli_query($enlace, $cons_mysql);
 	while ($edo = mysqli_fetch_assoc($resCon)) {
-		$idTipo = $edo['idTipo'];
+		$tipo = $edo['tipo'];
+		$descrip = $edo['descripcion'];
+		$alimentos = $edo['viaticos'];
+		$numDia = $edo['numDias'];
+	}
+
+	$cons_mysql = "SELECT tipo, descripcion, viaticos,porcGto numDias FROM  tipoViajeAct where '$total_distancia' between kmsIni and kmsFin";
+	//echo $cons_mysql;
+	$resCon = mysqli_query($enlace, $cons_mysql);
+	while ($edo = mysqli_fetch_assoc($resCon)) {
 		$tipo = $edo['tipo'];
 		$descrip = $edo['descripcion'];
 		$alimentos = $edo['viaticos'];
 		$numDia = $edo['numDias'];
 		$porcGto = $edo['porcGto'];
-		$kmsIni = $edo['kmsIni'];
-		$kmsFin = $edo['kmsFin'];
 	}
 
 
@@ -88,14 +87,58 @@ WHERE   camion ='$unidad'";
 	}
 
 
-	$cons_mysql = "SELECT * FROM  tipoViajeComple where idTipo='$idTipo' and adecuacion ='$tonelaje' and modelo='$unidMod'";
+	$cons_mysql = "SELECT * FROM  tipoViajeAct where '$total_distancia' between kmsIni and kmsFin";
 	//echo $cons_mysql;
 	$resCon = mysqli_query($enlace, $cons_mysql);
 	while ($edo = mysqli_fetch_assoc($resCon)) {
-		$comision = $edo['comision'];
-		$rendiL = $edo['RendLoc'];
-		$rendiF = $edo['RendFor'];
+		$tipo = $edo['tipo'];
+		$descrip = $edo['descripcion'];
+		$alimentos = $edo['viaticos'];
+		$numDia = $edo['numDias'];
+		$porcGto = $edo['porcGto'];
+		if ($modelo2 == 'CASCADIA' or $modelo == 'CASCADIA') {
+			$comision = $edo['CASCADIA_comision'];
+			$rendiL = $edo['CASCADIA_RendLoc'];
+			$rendiF = $edo['CASCADIA_RendFor'];
+		} else if ($modelo2 == 'SUNRAY' or $modelo == 'SUNRAY') {
+			$comision = $edo['SUNRAY_comision'];
+			$rendiL = $edo['SUNRAY_RendLoc'];
+			$rendiF = $edo['SUNRAY_RendFor'];
+		} else if ($modelo2 == 'UTILITARIA' or $modelo == 'GF8') {
+			$comision = $edo['GF8_comision'];
+			$rendiL = $edo['GF8_RendLoc'];
+			$rendiF = $edo['GF8_RendFor'];
+		} else if ($modelo2 == 'GF10000' or $modelo == 'GF10000') {
+			$comision = $edo['GF10000_comision'];
+			$rendiL = $edo['GF10000_RendLoc'];
+			$rendiF = $edo['GF10000_RendFor'];
+		} else if ($modelo2 == 'GF6000' or $modelo == 'GF6000') {
+			$comision = $edo['GF6000_comision'];
+			$rendiL = $edo['GF6000_RendLoc'];
+			$rendiF = $edo['GF6000_RendFor'];
+		} else if ($modelo2 == 'GF5000' or $modelo == 'GF5000') {
+			$comision = $edo['GF5000_comision'];
+			$rendiL = $edo['GF5000_RendLoc'];
+			$rendiF = $edo['GF5000_RendFor'];
+		} else if ($modelo2 == 'GF3000' or $modelo == 'GF3000') {
+			$comision = $edo['GF3000_comision'];
+			$rendiL = $edo['GF3000_RendLoc'];
+			$rendiF = $edo['GF3000_RendFor'];
+		} else if ($modelo2 == 'GF1500' or $modelo == 'GF1500') {
+			$comision = $edo['GF1500_comision'];
+			$rendiL = $edo['GF1500_RendLoc'];
+			$rendiF = $edo['GF1500_RendFor'];
+		} else if ($modelo2 == 'GF250' or $modelo == 'GF250') {
+			$comision = $edo['GF250_comision'];
+			$rendiL = $edo['GF250_RendLoc'];
+			$rendiF = $edo['GF250_RendFor'];
+		}
 	}
+	/* echo "Modelo-->".$modelo2;
+ echo "COMISION-->".$comision;
+ echo "REND LOCAL-->".$rendiL;
+ echo "REND FORANE-->".$rendiF;
+ echo "numdia-->".$numDia;*/
 
 	$preDie =  str_replace(",", ".", $preDie);
 
@@ -105,11 +148,9 @@ WHERE   camion ='$unidad'";
 		$lto = $total_distancia / $rendiF;
 		//echo "Ltos-->".$lto;	
 		$total_gasolina = $lto * $preDie;
-		$rendimiento = $rendiF;
 	} else {
 
 		$total_gasolina = ($total_distancia / $rendiL) * $preDie;
-		$rendimiento = $rendiL;
 	}
 
 	if ($vuelta == true or $vuelta == 1) {
@@ -165,13 +206,11 @@ fechaDisponib,confirmacion,idViaje,confirmaViaje,ciudad) value
    '$entre','Programado','$total_gasolina','$total_casetas','$alimentos','$totComision','$total_distancia','$numDia','$total_tiempo',
    '$fecha_disponibilidad','$tipo','$idV','Pendiente','$ciudad')";
 	//echo $queryInsertar;
+
 	mysqli_query($enlace, $queryInsertar);
 
-	$sqlU = "UPDATE metricas_precio SET grupo='$descrip',rendimiento='$rendimiento',num_dias='$numDia',comision='$comision',viaticos='$alimentos',
-	utilidad_premium='',gasto_premium='',km_inicial='$kmsIni' ,km_final='$kmsFin' WHERE id='$idMet'";
-	mysqli_query($enlace, $sqlU);
 
-	$sqlU = "UPDATE viajes  SET  estatus='Confirmado' WHERE id='$idV'";
+	$sqlU = "UPDATE viajes  SET  estatus='Confirmado', estatus_app = 'Pendiente' WHERE id='$idV'";
 	mysqli_query($enlace, $sqlU);
 
 	$Datos = array(

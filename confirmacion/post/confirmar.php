@@ -109,7 +109,6 @@ foreach ($datosArreglo as &$datos) {
                     $tipo = $datos2["tipo"];
                     $presupuesto = $datos2["presupuesto"];
                     $insertDesgloseAuth2 =  "UPDATE gastos set presupuesto = '$presupuesto' WHERE idViaje = $idViaje and tipo = '$tipo'";
-
                     if ($conexion->query($insertDesgloseAuth2) === TRUE) {
 
                         $last_id = $conexion->insert_id;
@@ -145,6 +144,17 @@ foreach ($datosArreglo as &$datos) {
                             $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
                             respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-UPDATE VIAJE", $payload);
                         }
+						//
+						$updatePrecio = "UPDATE precio_viaje set precio = '$precio' WHERE idViaje = '$idViaje'";
+                        if ($conexion->query($updatePrecio) === TRUE) {
+                            $payloadViaje = ["sqlEstatusUpdate" => $idViaje];
+                            $payloadFinal[] = array_merge($payloadGastosInsert, $payloadAuth, $payloadOperaciones, $payloadViaje, ["viaje operaciones" => $viajeOperaciones]);
+                            $exitoso = true;
+                        } else {
+                            $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                            respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-UPDATE VIAJE", $payload);
+                        }
+						
                     } else {
                         $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
                         respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-INSERT OPERACIONES", $payload);

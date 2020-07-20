@@ -100,12 +100,8 @@ if (empty($faltantes)) {
         if ($viajes["casetas"] === '') {
             $viajes["casetas"] = 0;
         }
-        $km = $viajes["distancia"];
-        if ($viajes["rendimiento"] === '') {
-            $km = $km / 1000;
-            $kilometros = consultaViajes($conexion, "SELECT * FROM Kilometros WHERE '$km' BETWEEN KilomInicial and KilomFinal or '$km' < KilomInicial");
-            $viajes["rendimiento"] = $kilometros["rendimiento"];
-        }
+        $km = $viajes["distancia"] / 1000;
+
 
         $datosgastos = [
             [
