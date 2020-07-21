@@ -135,7 +135,8 @@ if (empty($faltantes)) {
             INNER JOIN precio_viaje p on p.idViaje = v.id
             INNER JOIN metricas_precio m on p.idMetricasPrecio = m.id
             where t.tramo = 1
-            and v.estatus = 'Confirmado'";
+            and v.estatus = 'Confirmado' 
+            ORDER BY v.id DESC";
 
         $payload = consultaViajes($conexion, $consultaViajes);
 
