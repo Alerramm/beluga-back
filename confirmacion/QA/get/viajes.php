@@ -79,6 +79,7 @@ function consultaViajes($conexion, $consulta)
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
             $row["tramos"] = consulta($conexion, "SELECT id, tramo, fecha as fecha_tramo, destino as destino_tramo, entrega as entrega_tramo, distancia as distancia_tramo, casetas as casetas_tramo FROM tramos WHERE idViaje = " . $row["idViaje"]);
             $row["key"] = $row["idViaje"];
+            $row["kilometraje"] = $row["kilometraje"] / 1000;
             $dateC = new DateTime($row["fecha_carga"]);
             $row["fecha_carga"] = $dateC->format('m-d H:i');
             $dateE = new DateTime($row["fecha_entrega"]);
@@ -127,7 +128,7 @@ if (empty($faltantes)) {
 
         //Consulta viajes
         $consultaViajes =
-            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo
+            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo, v.distancia as kilometraje, m.rendimiento
             FROM viajes v 
             INNER JOIN empresa_viaje ev on v.id = ev.idViaje
             INNER JOIN tramos t on v.id = t.idViaje
