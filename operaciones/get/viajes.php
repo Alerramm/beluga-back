@@ -49,19 +49,19 @@ if (empty($faltantes)) {
         //Consulta viajes
         switch ($estatus) {
             case "Proceso":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' )";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' ) ORDER BY id DESC;";
                 break;
             case "Gastos":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'Gastos'";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'Gastos' ORDER BY id DESC;";
                 break;
             case "En carga":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('En proceso cliente', 'En proceso')";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('En proceso cliente', 'En proceso') ORDER BY id DESC;";
                 break;
             case "En trayecto":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'En trayecto'";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'En trayecto' ORDER BY id DESC;";
                 break;
             case "Entrega":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ( 'Facturacion', 'En regreso')";
+                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ( 'Facturacion', 'En regreso') ORDER BY id DESC;";
                 break;
             case "Historial":
                 $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje FROM viajes where estatus in ( 'Cancelado', 'Finalizado') ORDER BY id DESC;";

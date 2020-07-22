@@ -81,9 +81,9 @@ function consultaViajes($conexion, $consulta)
             $row["key"] = $row["idViaje"];
             $row["kilometraje"] = round($row["kilometraje"] / 1000, -1);
             $dateC = new DateTime($row["fecha_carga"]);
-            $row["fecha_carga"] = $dateC->format('m-d H:i');
+            $row["fecha_carga"] = $dateC->format('Y-m-d H:i');
             $dateE = new DateTime($row["fecha_entrega"]);
-            $row["fecha_entrega"] = $dateE->format('m-d H:i');
+            $row["fecha_entrega"] = $dateE->format('Y-m-d H:i');
             $row["empresa"] = consulta($conexion, "SELECT id, nombre from empresa");
             $conductores = array(
                 "fecha_inicial" => $row["fecha_salida"],

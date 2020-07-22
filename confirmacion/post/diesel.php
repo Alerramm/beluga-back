@@ -63,35 +63,35 @@ if (empty($faltantes)) {
         $row = mysqli_fetch_array($usuarios, MYSQLI_ASSOC);
 
 
-        $payloadGastosInsert[] = ["Resultado Select" => " Select " . $row["idViaje"], $row["DieselViaje"], $row["idMetricasPrecio"],$row["rendimiento"],$row["distancia"]];
+        $payloadGastosInsert[] = ["Resultado Select" => " Select " . $row["idViaje"], $row["DieselViaje"], $row["idMetricasPrecio"], $row["rendimiento"], $row["distancia"]];
 
 
-        $litros=$diesel/$row["DieselViaje"];
+        $litros = $diesel / $row["DieselViaje"];
 
         $payloadGastosInsert[] = ["Diesel tabla Viajes" => " Select " . $row["DieselViaje"]];
         $payloadGastosInsert[] = ["Diesel Division" => " Select " . $litros];
 
         $payloadGastosInsert[] = ["Distancia" => " Select " . $row["distancia"]];
 
-        $kilometros= $row["distancia"]/1000;
+        $kilometros = $row["distancia"] / 1000;
 
         $payloadGastosInsert[] = ["Distancia entre mil" => " Select " . $kilometros];
 
 
 
-        $rendimiento = $kilometros / $litros;
-        
+        $rendimiento = round($kilometros / $litros, 2);
+
 
         $payloadGastosInsert[] = ["Rendimiento Final " => " Select " . $rendimiento];
 
         $idMetricasPrecio = $row["idMetricasPrecio"];
 
 
-        $UPDATE ="UPDATE metricas_precio SET rendimiento = '$rendimiento' WHERE metricas_precio.id = '$idMetricasPrecio'";
+        $UPDATE = "UPDATE metricas_precio SET rendimiento = '$rendimiento' WHERE metricas_precio.id = '$idMetricasPrecio'";
 
 
 
-        
+
         if ($conexion->query($UPDATE) === TRUE) {
 
             $viajesActualizados =  mysqli_query($conexion, $consulta);
@@ -101,17 +101,10 @@ if (empty($faltantes)) {
             $payloadGastosInsert = ["Rendimiento" => $rendimiento, "id" => $idMetricasPrecio];
 
             respuesta(200, 200,  "Respuesta exitosa", $payloadGastosInsert);
-
-
         } else {
             $payloadGastosInsert = ["sql" => "Error: " . $UPDATE . "<br>" . $conexion->error];
             respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-TAUPD", $payloadGastosInsert);
         }
-
-
-
-
-       
     }
 } else {
     $payload = ["Faltantes" => $faltantes];
