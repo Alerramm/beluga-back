@@ -99,8 +99,8 @@ function consultaViajes($conexion, $consulta)
             );
             $row["operadorSeleccionado"] = $row["operador"];
             $row["unidadSeleccionada"] = $row["unidad"];
-            $row["operador"] = clientRest($conductores, "http://www.misistema.mx/beluga/Finanzas/endpoints/confirmacion/QA/get/conductores.php");
-            $row["unidad"] =  clientRest($unidades, "http://www.misistema.mx/beluga/Finanzas/endpoints/confirmacion/QA/get/modelosActivos.php");
+            $row["operador"] = clientRest($conductores, "http://www.misistema.mx/beluga/Finanzas/endpoints/confirmacion/get/conductores.php");
+            $row["unidad"] =  clientRest($unidades, "http://www.misistema.mx/beluga/Finanzas/endpoints/confirmacion/get/modelosActivos.php");
             $row = consultaGastos($conexion, "SELECT * FROM gastos WHERE idViaje = " . $row["idViaje"], $row);
             $respuesta[] = $row;
         }
