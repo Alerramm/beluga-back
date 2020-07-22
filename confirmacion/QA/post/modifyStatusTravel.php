@@ -53,7 +53,7 @@ foreach ($datosArreglo as &$datos) {
             mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
             mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
             $updateEstatus =  "UPDATE viajes SET 
-                                                estatus_app='$estatus_app ',
+                                                estatus_app='$estatus_app',
                                                 estatus='$estatus',
                                                 unidad='$unidad',
                                                 operador='$operador'
@@ -61,7 +61,7 @@ foreach ($datosArreglo as &$datos) {
                                                      WHERE id = '$idViaje' ";
             if ($unidad == "") {
                 $updateEstatus =  "UPDATE viajes SET 
-                estatus_app='$estatus_app ',
+                estatus_app='$estatus_app',
                 estatus='$estatus',
                 operador='$operador'
                 
@@ -69,7 +69,7 @@ foreach ($datosArreglo as &$datos) {
             }
             if ($operador == "") {
                 $updateEstatus =  "UPDATE viajes SET 
-                estatus_app='$estatus_app ',
+                estatus_app='$estatus_app',
                 estatus='$estatus',
                 unidad='$unidad'
                 

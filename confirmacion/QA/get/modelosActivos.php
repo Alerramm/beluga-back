@@ -27,7 +27,7 @@ if ($fechaInicialV == null || $fechaFinalV == null) {
   http_response_code(200);
   echo json_encode($data);
 } else {
-  $consultaToneladasTipo = "SELECT camion as nombre, id FROM unidades WHERE toneladas ='$toneladas' AND tipo = '$tipo' and activa ='Si'";
+  $consultaToneladasTipo = "SELECT camion as nombre, id FROM unidades WHERE ton ='$toneladas' AND tipo = '$tipo' and activa ='Si'";
   $consultaDisponibilidad = "SELECT distinct (camion) as nombre, id FROM intinerarioUnidades WHERE (fechaInicial  <= '$fechaInicialV' AND fechaFinal >= '$fechaFinalV') OR (fechaInicial BETWEEN '$fechaInicialV' AND '$fechaFinalV') OR (fechaFinal BETWEEN '$fechaInicialV' AND '$fechaFinalV')";
   //$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
   //Query para obtener clientes
