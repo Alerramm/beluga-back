@@ -51,7 +51,7 @@ function consultaGastos($conexion, $consulta, $rowRespuesta)
     if ($row_cnt > 0) {
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
             $tipo = $row["tipo"];
-            $rowRespuesta[strtolower($tipo)] = $row["presupuesto"];
+            $rowRespuesta[strtolower($tipo)] = round($row["presupuesto"], -1);
         }
     }
 

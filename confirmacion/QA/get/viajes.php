@@ -51,7 +51,7 @@ function consultaGastos($conexion, $consulta, $rowRespuesta)
     if ($row_cnt > 0) {
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
             $tipo = $row["tipo"];
-            $rowRespuesta[strtolower($tipo)] = $row["presupuesto"];
+            $rowRespuesta[strtolower($tipo)] = round($row["presupuesto"], -1);
         }
     }
 
@@ -79,7 +79,7 @@ function consultaViajes($conexion, $consulta)
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
             $row["tramos"] = consulta($conexion, "SELECT id, tramo, fecha as fecha_tramo, destino as destino_tramo, entrega as entrega_tramo, distancia as distancia_tramo, casetas as casetas_tramo FROM tramos WHERE idViaje = " . $row["idViaje"]);
             $row["key"] = $row["idViaje"];
-            $row["kilometraje"] = $row["kilometraje"] / 1000;
+            $row["kilometraje"] = round($row["kilometraje"] / 1000, -1);
             $dateC = new DateTime($row["fecha_carga"]);
             $row["fecha_carga"] = $dateC->format('m-d H:i');
             $dateE = new DateTime($row["fecha_entrega"]);
