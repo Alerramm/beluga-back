@@ -98,6 +98,11 @@ $operador = $datos["operador"];
 
 
 $password = $datos["password"];
+
+
+$tripName = $datos["tripName"];
+$saveTrip = $datos["saveTrip"];
+
 /*
 if ($tipoUnidad == "")
 {
@@ -307,9 +312,9 @@ if (empty($faltantes))
 
 
                         if ($saveTrip==1) {
-                            $name = $last_id;
+                            
                             $insertTrip = "INSERT INTO viajes_guardados VALUES 
-                            (null,'$name','Solicitudes','$last_id')";
+                            (null,'$tripName','$nombreCliente','$last_id')";
 
                             if ($conexion->query($insertTrip) === true) {
                             
@@ -664,10 +669,11 @@ if (empty($faltantes))
                         $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully TOTAL DISTANCIA" . $last_id];
                         $contTramos = 1;
 
+
                         if ($saveTrip==1) {
-                            $name = $last_id;
+                            
                             $insertTrip = "INSERT INTO viajes_guardados VALUES 
-                            (null,'$name','Solicitudes','$last_id')";
+                            (null,'$tripName','$consultaresponseDato','$last_id')";
 
                             if ($conexion->query($insertTrip) === true) {
                             
