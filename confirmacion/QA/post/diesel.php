@@ -15,7 +15,8 @@ $datos = json_decode(file_get_contents('php://input'), true);
 //variables tabla empresa_viaje
 
 $idViaje = $datos["idViaje"];
-$diesel = $datos["diesel"];
+$diesel = preg_replace('/[.,]/', '',  $datos["diesel"]);
+
 
 
 
