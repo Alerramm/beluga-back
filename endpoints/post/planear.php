@@ -304,6 +304,24 @@ if (empty($faltantes))
                         $last_id = $conexion->insert_id;
                         $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully " . $last_id];
                         $contTramos = 1;
+
+
+                        if ($saveTrip==1) {
+                            $name = $last_id;
+                            $insertTrip = "INSERT INTO viajes_guardados VALUES 
+                            (null,'$name','Solicitudes','$last_id')";
+
+                            if ($conexion->query($insertTrip) === true) {
+                            
+                         
+                              $payloadGastosInsert[] = ["saveTripsInsert" => " Exito New saveTrips record created successfully " . $last_id];
+                            } else {
+                                $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips " . $insertTrip];
+                            }
+                          } else {
+                             $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips tercera " . $insertTrip];
+                          }
+
                         foreach ($datos["rutas"] as & $valor)
                         {
                             $indexRoute = $contTramos;
@@ -329,6 +347,8 @@ if (empty($faltantes))
                             $observaciones = $valor["observaciones"];
                             $tipo = "aun nose";
                             $idviaje = $last_id;
+
+
 
                             /* $insertT =  "INSERT INTO tramos VALUES
                                                 (null,$indexRoute,'$casetas','$destino','$distancia','$fecha','$fechaLabel',' $load_time','$origen',
@@ -643,6 +663,25 @@ if (empty($faltantes))
                         $last_id = $conexion->insert_id;
                         $payloadGastosInsert[] = ["ViajeInsert" => " Exito New Travel record created successfully TOTAL DISTANCIA" . $last_id];
                         $contTramos = 1;
+
+                        if ($saveTrip==1) {
+                            $name = $last_id;
+                            $insertTrip = "INSERT INTO viajes_guardados VALUES 
+                            (null,'$name','Solicitudes','$last_id')";
+
+                            if ($conexion->query($insertTrip) === true) {
+                            
+                         
+                              $payloadGastosInsert[] = ["saveTripsInsert" => " Exito New saveTrips record created successfully " . $last_id];
+                            } else {
+                                $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips " . $insertTrip];
+                            }
+                          } else {
+                             $payloadGastosInsert[] = ["saveTripsInsert" => " Error New saveTrips tercera " . $insertTrip];
+                          }
+
+
+
                         foreach ($datos["rutas"] as & $valor)
                         {
                             $indexRoute = $contTramos;
