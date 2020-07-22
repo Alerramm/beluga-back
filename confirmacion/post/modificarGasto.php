@@ -60,6 +60,9 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
+
+        $presupuesto = str_replace ( ",", '', $presupuesto);
+
         $UPDATE = "UPDATE gastos SET `presupuesto` = '$presupuesto' WHERE idViaje = '$idViaje' AND tipo = '$TipoGasto'";
 
 
