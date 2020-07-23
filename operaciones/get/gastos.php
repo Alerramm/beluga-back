@@ -36,14 +36,13 @@ function respuesta($codehttp, $code, $mensaje, $payload)
 }
 
 
-function consulta($conexion, $consulta, $tipo)
+function consulta($conexion, $consulta)
 {
     //Consulta 
     $query = mysqli_query($conexion, $consulta);
     $row_cnt = $query->num_rows;
     if ($row_cnt > 0) {
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
-            $row["concepto"] = $tipo;
             $respuesta[] = $row;
         }
     } else {
@@ -61,8 +60,7 @@ function consultaGastos($conexion, $consulta)
     if ($row_cnt > 0) {
         while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
             $id = $row["id"];
-            $tipo = $row["tipo"];
-            $row["dispersiones"] = consulta($conexion, "SELECT id,referencia as folio, estatus, metodoPago as tipo, total as monto FROM dispersiones where idGasto = '$id'", $tipo);
+            $row["dispersiones"] = consulta($conexion, "SELECT * FROM dispersiones where idGasto = '$id'");
             $respuesta[] = $row;
         }
     } else {
@@ -92,44 +90,11 @@ if (empty($faltantes)) {
         //Analisis de la informacion
         $gastos = consultaGastos($conexion, "SELECT * FROM gastos where idViaje = '$id'");
 
-        $dispersiones = [];
-        foreach ($gastos  as &$gasto) {
-            switch ($gasto["tipo"]) {
-                case "Diesel":
-                    $disel = $gasto["total"];
-                    break;
-                case "Casetas":
-                    $casetas = $gasto["total"];
-                    break;
-                case "Viaticos":
-                    $alimentos = $gasto["total"];
-                    break;
-                case "Comision":
-                    $comision = $gasto["total"];
-                    break;
-                case "Maniobras":
-                    $maniobras = $gasto["total"];
-                    break;
-            }
-            $dispersiones = array_merge($dispersiones, $gasto["dispersiones"]);
-        }
-
         //Response
         if (empty($gastos)) {
             respuesta(200, 404, "Este viaje no tiene depositos", []);
         } else {
-            $payload = [
-                "diselTotal" => $disel,
-                "casetasTotal" => $casetas,
-                "alimentosTotal" => $alimentos,
-                "comisionTotal" => $comision,
-                "estadiasTotal" => 0,
-                "maniobrasTotal" => $maniobras,
-                "transitoTotal" => 0,
-                "mantenimientoTotal" => 0,
-                "depositos" => $dispersiones
-            ];
-            respuesta(200, 200, "Respuesta exitosa", $payload);
+            respuesta(200, 200, "Respuesta exitosa", $gastos);
         }
     }
 } else {
