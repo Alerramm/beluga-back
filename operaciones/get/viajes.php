@@ -14,6 +14,8 @@ $fin = false;
 $datos = json_decode(file_get_contents('php://input'), true);
 $estatus = $datos["estatus"];
 
+
+
 //funciones
 function respuesta($codehttp, $code, $mensaje, $factload)
 {
@@ -26,6 +28,107 @@ function respuesta($codehttp, $code, $mensaje, $factload)
         "payload" => $factload
     ];
     echo json_encode($dataFinal);
+}
+
+
+function consulta($conexion, $consulta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $row["key"] = $row["id"];
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
+function consultaTramos($conexion, $consulta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $idTramo = $row["idTramo"];
+            $row["key"] = $row["id"];
+            $row["distanciaTramo"] =  round($row["distanciaTramo"]);
+            $row["tiempo"] =  round($row["tiempo"] / 60 / 60);
+            $dateT = new DateTime($row["fecha"]);
+            $row["fecha"] = $dateT->format('Y-m-d H:i');
+            $row["casetas"] = consulta($conexion, "SELECT * from casetas WHERE idTramo = $idTramo");
+            $row["embarques"] = consulta($conexion, "SELECT id, numero, cajas, cajas_entregadas, cajas_rechazadas, estatus as estatusEmbarque  FROM embarques where idTramo = $idTramo");
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
+$gasto = 0;
+$presupuesto = 0;
+
+function consultaGastos($conexion, $consulta)
+{
+    global $gasto, $presupuesto;
+    $gasto = 0;
+    $presupuesto = 0;
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $gasto = $gasto + $row["total"];
+            $presupuesto = $presupuesto + $row["presupuesto"];
+            $row["key"] = $row["id"];
+            $idGasto = $row["id"];
+            $row["dispersiones"] = consulta($conexion, "SELECT * FROM dispersiones WHERE idGasto = $idGasto");
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
+function consultaViajes($conexion, $consulta)
+{
+
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $idViaje = $row["idViaje"];
+            $row["key"] = $row["idViaje"];
+            $dateC = new DateTime($row["fecha_carga"]);
+            $row["fecha_carga"] = $dateC->format('Y-m-d H:i');
+            $dateE = new DateTime($row["fecha_entrega"]);
+            $row["fecha_entrega"] = $dateE->format('Y-m-d H:i');
+            $row["distanciaViaje"] = round($row["distanciaViaje"] / 1000, -1);
+            $row["tiempo"] = round($row["tiempo"]);
+            $row["gastos"] = consultaGastos($conexion, "SELECT * FROM gastos where idViaje = $idViaje");
+            $row["tramos"] = consultaTramos($conexion, "SELECT id as idTramo, tramo, fecha, destino, origen, entrega, tiempo_carga, tiempo, distancia as distanciaTramo, waypoints, observaciones, estatus as estatusTramo FROM tramos where idViaje = $idViaje");
+
+            global $gasto, $presupuesto;
+            $row["gasto"] = $gasto;
+            $row["presupuesto"] = $presupuesto;
+
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
 }
 
 //Validacion de Datos
@@ -49,79 +152,88 @@ if (empty($faltantes)) {
         //Consulta viajes
         switch ($estatus) {
             case "Proceso":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' ) ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' ) ORDER BY v.id DESC;";
                 break;
             case "Gastos":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'Gastos' ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus = 'Gastos' ORDER BY v.id DESC;";
                 break;
             case "En carga":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ('En proceso cliente', 'En proceso') ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ('En proceso cliente', 'En proceso') ORDER BY v.id DESC;";
                 break;
             case "En trayecto":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus = 'En trayecto' ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus = 'En trayecto' ORDER BY v.id DESC;";
                 break;
             case "Entrega":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ( 'Facturacion', 'En regreso') ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ( 'Facturacion', 'En regreso') ORDER BY v.id DESC;";
+                break;
+            case "Evidencia":
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ( 'En regreso') ORDER BY v.id DESC;";
+                break;
+            case "Liberado":
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ( 'Facturacion') ORDER BY v.id DESC;";
                 break;
             case "Historial":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje FROM viajes where estatus in ( 'Cancelado', 'Finalizado') ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                where v.estatus in ( 'Cancelado',  'Finalizado' ) ORDER BY v.id DESC;";
                 break;
             case "Todos":
-                $consulta = "SELECT  id as idViaje, base, cliente, destino as destinoViaje, ruta, fecha_salida, fecha_carga, fecha_entrega, fecha_disponibilidad, unidad, operador,  distancia as distanciaViaje, tiempo_formato, redondo, valida_fechas, estatus as estatusViaje  FROM viajes where estatus in ( 'Gastos', 'En proceso cliente', 'En proceso', 'En trayecto', 'Entregado' , 'Cancelado',  'Finalizado' ) ORDER BY id DESC;";
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                FROM viajes v
+                INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                INNER JOIN empresa e on ev.idEmpresa = e.id 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje 
+                ORDER BY v.id DESC;";
                 break;
         }
 
-        $viajes = mysqli_query($conexion, $consulta) or die(respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-Estatus no existe", []));
-        while ($row = $viajes->fetch_array(MYSQLI_ASSOC)) {
-            $tramosData = [];
-            $costosVData = [];
-            $baseDeOperaciones = $row["base"];
-            $consultaBase = mysqli_query($conexion, "SELECT nombre FROM baseDeOperaciones where direccion = '$baseDeOperaciones'");
-            $base = mysqli_fetch_array($consultaBase, MYSQLI_ASSOC);
-            $row["base"] = $base["nombre"];
-            $row["direccion_base"] = $baseDeOperaciones;
-            $dateC = new DateTime($row["fecha_carga"]);
-            $row["fecha_carga"] = $dateC->format('Y-m-d H:i');
-            $dateE = new DateTime($row["fecha_entrega"]);
-            $row["fecha_entrega"] = $dateE->format('Y-m-d H:i');
-            $idViaje = $row["idViaje"];
-            $row["precio"] = "9000";
-            $row["gasto"] = "3000";
-            $consultaTempOperaciones = mysqli_query($conexion, "SELECT confirmaViaje from tempOperacion WHERE idViaje = $idViaje");
-            $tempOperacion = mysqli_fetch_array($consultaTempOperaciones, MYSQLI_ASSOC);
-            $row["estatusAppOperador"] =  'Pendiente';
-            $tramos = mysqli_query($conexion, "SELECT id as idTramo, tramo, fecha, destino, origen, entrega, tiempo_carga, tiempo, distancia as distanciaTramo, waypoints, observaciones, estatus as estatusTramo FROM tramos where idViaje = $idViaje");
-            while ($row2 = $tramos->fetch_array(MYSQLI_ASSOC)) {
-                $embarquesData = [];
-                $costosTData = [];
-                $idTramo = $row2["idTramo"];
-                $embarques = mysqli_query($conexion, "SELECT id, numero, cajas, cajas_entregadas, cajas_rechazadas, estatus as estatusEmbarque  FROM embarques where idTramo =$idTramo");
-                while ($row3 = $embarques->fetch_array(MYSQLI_ASSOC)) {
-                    $embarquesData[] = $row3;
-                }
-                $row2["embarques"] = $embarquesData;
-                $costosT = mysqli_query($conexion, "SELECT tipo, presupuesto, total, observacion, estatus, autoriza  FROM costos where idTramo =$idTramo");
-                while ($row4 = $costosT->fetch_array(MYSQLI_ASSOC)) {
-                    $costosTData[] = $row4;
-                }
-                $row2["costos"] = $costosTData;
-                $tramosData[] = $row2;
-                $row2["casetas"] = [];
-            }
-            $row["tramos"] = $tramosData;
-            $costosV = mysqli_query($conexion, "SELECT tipo, presupuesto, total, observacion, estatus, autoriza  FROM costos where idViaje = $idViaje");
-            while ($row5 = $costosV->fetch_array(MYSQLI_ASSOC)) {
-                $costosVData[] = $row5;
-            }
-            $row["costos"] = $costosVData;
-            $dataViajes[] = $row;
-        }
+        $viajes = consultaViajes($conexion, $consulta);
+
+
         //Response
-        if (empty($dataViajes)) {
+        if (empty($viajes)) {
             respuesta(200, 404, "No existen viajes ", []);
         } else {
-            $payload = $dataViajes;
-            respuesta(200, 200, "Respuesta exitosa", $payload);
+            $payload = $viajes;
+            respuesta(200, 200, "Respuesta exitosa", $viajes);
         }
     }
 } else {
