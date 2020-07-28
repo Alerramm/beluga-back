@@ -25,6 +25,7 @@ $cobroCliente = $datos["cobroCliente"];
 $autoriza = $datos["autoriza"];
 $fechaAutorizacion = $datos["fechaAutorizacion"];
 $montoAprobado = $datos["montoAprobado"];
+$montoSolicitado = $datos["montoSolicitado"];
 
 
 
@@ -74,17 +75,10 @@ if (empty($faltantes)) {
         } else {
             //Update
             $updateEstatus =  "UPDATE gastos SET 
-                                                subtotal='$subtotal ', 
-                                                iva='$iva',
-                                                total= '$total',
-                                                idTramo =$idTramo,
                                                 observacion = '$observacion',
                                                 estatus = '$estatus',
-                                                comprobado = '$comprobado',
                                                 cobroCliente = '$cobroCliente',
-                                                autoriza = '$autoriza',
-                                                fechaAutorizacion='$fechaAutorizacion',
-                                                montoAprobado = '$montoAprobado'
+                                                montoSolicitado = '$montoSolicitado'
                                                 
                                                 WHERE idViaje = $idViaje AND tipo ='$tipo'";
 
