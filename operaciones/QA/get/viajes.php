@@ -152,75 +152,84 @@ if (empty($faltantes)) {
         //Consulta viajes
         switch ($estatus) {
             case "Proceso":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ('Gastos', 'En proceso cliente', 'En proceso', 'En trayecto' ) ORDER BY v.id DESC;";
                 break;
             case "Gastos":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus = 'Gastos' ORDER BY v.id DESC;";
                 break;
             case "En carga":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ('En proceso cliente', 'En proceso') ORDER BY v.id DESC;";
                 break;
             case "En trayecto":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus = 'En trayecto' ORDER BY v.id DESC;";
                 break;
             case "Entrega":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ( 'Facturacion', 'En regreso') ORDER BY v.id DESC;";
                 break;
             case "Evidencia":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ( 'En regreso') ORDER BY v.id DESC;";
                 break;
             case "Liberado":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ( 'Facturacion') ORDER BY v.id DESC;";
                 break;
             case "Historial":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
                 where v.estatus in ( 'Cancelado',  'Finalizado' ) ORDER BY v.id DESC;";
                 break;
             case "Todos":
-                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje  
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
                 FROM viajes v
                 INNER JOIN empresa_viaje ev on v.id = ev.idViaje
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
-                INNER JOIN precio_viaje pv on v.id = pv.idViaje 
+                INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id 
                 ORDER BY v.id DESC;";
                 break;
         }
