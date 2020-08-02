@@ -44,27 +44,25 @@ function respuesta($codehttp, $code, $mensaje, $payload)
     }else{
    
          $hoy = getdate();
-         $hoy = 
-        
+         $payloadGastosInsert[] = ["Horario" => "Fecha else " . $hoy];
 
        
         $hora= $hoy['hours'];
-        $hora = $hora - 1;
 
         $payloadGastosInsert[] = ["Horario" => "Hora Else  " . $hora];
 
         
-          if($hora >8 && $hora <18 ){
+          if($hora < 8 && $hora > 18   ){
             $validator=1;
             }else{
               $validator=0;
             }    
     }
   
-    $payloadGastosInsert[] = ["Horario" => "Validador   " . $validator];
+
 
 
 
     $payload = ["Faltantes" => $faltantes];
-    respuesta(200, 200, "prueba", $payloadGastosInsert);
+    respuesta(200, 200, "prueba", $payload);
 

@@ -52,13 +52,15 @@ if ($idViaje == "") {
                     array_push($faltantes, 'Id Tramo ' . $count);
                     $mensaje = "Necesitamos que complete todos los campos obligatorios antes de poder continuar";
                 }
-                if ($tramo["numEmbarque"] == 0) {
-                    array_push($faltantes, 'Numero Embarque Tramo ' . $count);
-                    $mensaje = "Necesitamos que complete todos los campos obligatorios antes de poder continuar";
-                }
-                if ($tramo["cajas"] == 0) {
-                    array_push($faltantes, 'Cajas Tramo ' . $count);
-                    $mensaje = "Necesitamos que complete todos los campos obligatorios antes de poder continuar";
+                foreach ($tramo["embarques"] as &$embarque) {
+                    if ($embarque["numEmbarque"] == 0) {
+                        array_push($faltantes, 'Numero Embarque Tramo ' . $count);
+                        $mensaje = "Necesitamos que complete todos los campos obligatorios antes de poder continuar";
+                    }
+                    if ($embarque["cajas"] == 0) {
+                        array_push($faltantes, 'Cajas Tramo ' . $count);
+                        $mensaje = "Necesitamos que complete todos los campos obligatorios antes de poder continuar";
+                    }
                 }
                 $count = $count + 1;
             }
@@ -69,6 +71,8 @@ if ($idViaje == "") {
 
 
 if (empty($faltantes)) {
+    $numEmbarque = '';
+    $cajasO = "";
     //Conexion a base de datos
     $mysqli = mysqli_init();
     $conexion = mysqli_connect($_SESSION['HOST'], $_SESSION['USER'], $_SESSION['PASS'], $_SESSION['DBNAME']);
@@ -89,35 +93,33 @@ if (empty($faltantes)) {
             respuesta(200, 404, "Hay un error con el servidor. Llama a central. Error-CLOPD" . $idViaje, []);
         } else {
             //Update Cajas Tramo
+            $cont = 0;
             foreach ($tramos as &$tramo) {
-                $numEmbarque = $tramo["numEmbarque"];
-                $cajas = $cajas + $tramo["cajas"];
-
                 //const
                 $tramoId = $tramo["idTramo"];
-                $tramoEmbarque = $tramo["numEmbarque"];
-                $tramoCajas = $tramo["cajas"];
 
-                //Update Cajas Operaciones
-                $updateCajasTramos =  "UPDATE tramos SET embarque ='$tramoEmbarque', cajas ='$tramoCajas' WHERE id = $tramoId;";
-                if ($conexion->query($updateCajasTramos) === TRUE) {
-                    $payloadCajasTramos[] = ["sqlCajasTramos" => "Exito Update record successfully", "idTramo" => $tramoId];
-                } else {
-                    $payloadCajasTramos[] = ["sqlCajasTramos" => "Error: " . $updateCajasTramos . "<br>" . $conexion->error];
-                    $siguiente = false;
+                if ($cont == 0) {
+                    $tramoPrimero = $tramo["idTramo"]  - 1;
+                    $cont = 1;
                 }
-            }
-            //Update Cajas Operaciones
-            $updateCajasOperaciones =  "UPDATE operaciones SET numEmbarque='$numEmbarque', Cajas ='$cajas', checkList = '$checklist'  WHERE idViaje = $idViaje;";
-            if ($conexion->query($updateCajasOperaciones) === TRUE) {
-                $payloadCajasOperaciones = ["sqlCajasOperaciones" => "Exito Update record successfully", " query" => $updateCajasOperaciones];
-            } else {
-                $payloadCajasOperaciones = ["sqlCajasOperaciones" => "Error: " . $updateCajasOperaciones . "<br>" . $conexion->error];
-                $siguiente = false;
+                //Update Cajas Operaciones
+                foreach ($tramo["embarques"] as &$embarque) {
+                    $cajas = $embarque["cajas"];
+                    $numero = $embarque["numEmbarque"];
+                    $numEmbarque = $embarque["numEmbarque"] . "," . $numEmbarque;
+                    $cajasO =  $embarque["cajas"] . "," . $cajasO;
+                    $updateCajasTramos =  "INSERT INTO embarques( numero, cajas, idTramo, estatus) VALUES ('$numero','$cajas','$tramoId','Pendiente')";
+                    if ($conexion->query($updateCajasTramos) === TRUE) {
+                        $payloadCajasTramos[] = ["sqlCajasTramos" => "Exito Insert record successfully", "idTramo" => $tramoId];
+                    } else {
+                        $payloadCajasTramos[] = ["sqlCajasTramos" => "Error: " . $updateCajasTramos . "<br>" . $conexion->error];
+                        $siguiente = false;
+                    }
+                }
             }
 
             //Update Estatus
-            $updateEstatus =  "UPDATE viaje SET estatus='En trayecto'  WHERE id = $idViaje;";
+            $updateEstatus =  "UPDATE viajes SET estatus='En trayecto', checklist = '$checklist'  WHERE id = $idViaje;";
             if ($conexion->query($updateEstatus) === TRUE) {
                 $payloadEstatus = ["sqlEstatus" => " Exito Update record successfully"];
             } else {
@@ -125,12 +127,20 @@ if (empty($faltantes)) {
                 $siguiente = false;
             }
 
+            //Update Estatus
+            $updateTramos =  "UPDATE tramos SET estatus='Finalizado'  WHERE id = $tramoPrimero;";
+            if ($conexion->query($updateTramos) === TRUE) {
+                $payloadEstatusTramos = ["sqlEstatusTramos" => " Exito Update record successfully"];
+            } else {
+                $payloadEstatusTramos = ["sqlEstatusTramos" => "Error: " . $updateTramos . "<br>" . $conexion->error];
+                $siguiente = false;
+            }
 
             if ($siguiente) {
-                $payload = array_merge($payloadEstatus, $payloadCajasOperaciones, $payloadCajasTramos);
+                $payload = array_merge($payloadEstatus, $payloadCajasTramos, $payloadEstatusTramos);
                 respuesta(200, 200, "Respuesta exitosa", $payload);
             } else {
-                $payload = array_merge($payloadEstatus, $payloadCajasOperaciones, $payloadCajasTramos);
+                $payload = array_merge($payloadEstatus, $payloadCajasTramos, $payloadEstatusTramos);
                 respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-CLUPD", $payload);
             }
         }

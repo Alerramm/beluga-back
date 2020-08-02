@@ -53,11 +53,21 @@ if (empty($faltantes)) {
         $usuarios =  mysqli_query($conexion, $consulta);
         $row = mysqli_fetch_array($usuarios, MYSQLI_ASSOC);
 
+
         //Response
         if (empty($row)) {
             respuesta(200, 404, "Usuario o contraseña incorrecto", []);
         } else {
-            respuesta(200, 200, "Respuesta exitosa", $row);
+            $Datos = array(
+                "nombre" => $row["nombre"],
+            );
+            $url = 'http://www.misistema.mx/beluga/Finanzas/endpoints/app/QA/get/travelOperador.php';
+            $ch = curl_init($url);
+            $jsonDataEncoded = json_encode($Datos);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonDataEncoded);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            $result = curl_exec($ch);
         }
     }
 } else {

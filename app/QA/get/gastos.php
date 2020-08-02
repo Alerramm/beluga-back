@@ -35,6 +35,43 @@ function respuesta($codehttp, $code, $mensaje, $payload)
     echo json_encode($dataFinal);
 }
 
+
+function consulta($conexion, $consulta, $tipo)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $row["concepto"] = $tipo;
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
+function consultaGastos($conexion, $consulta)
+{
+    //Consulta 
+    $query = mysqli_query($conexion, $consulta);
+    $row_cnt = $query->num_rows;
+    if ($row_cnt > 0) {
+        while ($row = $query->fetch_array(MYSQLI_ASSOC)) {
+            $id = $row["id"];
+            $tipo = $row["tipo"];
+            $row["dispersiones"] = consulta($conexion, "SELECT id,referencia as folio, estatus, metodoPago as tipo, total as monto FROM dispersiones where idGasto = '$id'", $tipo);
+            $respuesta[] = $row;
+        }
+    } else {
+        $respuesta = [];
+    }
+
+    return $respuesta;
+}
+
 //Validacion de Datos
 if ($id == "") {
     array_push($faltantes, 'id');
@@ -53,84 +90,32 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Analisis de la informacion
-        $datosDesgloseGastos =  mysqli_query($conexion, "SELECT diesel, pagoDie, folDiesel, casetas, pagoCas, folCasetas, alimentos, pagoAli, folAlimentos, comision, pagoCom, folComision, estadias, pagoEst, folEstadias, maniobras, pagoMan, folManiobras, transito, pagoTra, folTransito, mantenimiento, pagoMto, folMante, observacion, status FROM desgloseGastos where idViaje = '$id'");
-        while ($row = $datosDesgloseGastos->fetch_array(MYSQLI_ASSOC)) {
-            $disel = $disel + $row["diesel"];
-            $casetas = $casetas + $row["casetas"];
-            $alimentos = $alimentos + $row["alimentos"];
-            $comision = $comision + $row["comision"];
-            $estadias = $estadias + $row["estadias"];
-            $maniobras = $maniobras + $row["maniobras"];
-            $transito = $transito + $row["transito"];
-            $mantenimiento = $mantenimiento + $row["mantenimiento"];
-            if ($row["diesel"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folDiesel"],
-                    "concepto" => "disel",
-                    "monto" => $row["diesel"],
-                    "tipo" =>  $row["pagoDie"]
-                ];
+        $gastos = consultaGastos($conexion, "SELECT * FROM gastos where idViaje = '$id'");
+
+        $dispersiones = [];
+        foreach ($gastos  as &$gasto) {
+            switch ($gasto["tipo"]) {
+                case "Diesel":
+                    $disel = $gasto["total"];
+                    break;
+                case "Casetas":
+                    $casetas = $gasto["total"];
+                    break;
+                case "Viaticos":
+                    $alimentos = $gasto["total"];
+                    break;
+                case "Comision":
+                    $comision = $gasto["total"];
+                    break;
+                case "Maniobras":
+                    $maniobras = $gasto["total"];
+                    break;
             }
-            if ($row["casetas"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folCasetas"],
-                    "concepto" => "casetas",
-                    "monto" => $row["casetas"],
-                    "tipo" =>  $row["pagoCas"]
-                ];
-            }
-            if ($row["alimentos"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folAlimentos"],
-                    "concepto" => "alimentos",
-                    "monto" => $row["alimentos"],
-                    "tipo" =>  $row["pagoAli"]
-                ];
-            }
-            if ($row["comision"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folComision"],
-                    "concepto" => "comision",
-                    "monto" => $row["comision"],
-                    "tipo" =>  $row["pagoCom"]
-                ];
-            }
-            if ($row["estadias"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["pagoEst"],
-                    "concepto" => "estadias",
-                    "monto" => $row["estadias"],
-                    "tipo" =>  $row["folEstadias"]
-                ];
-            }
-            if ($row["maniobras"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folManiobras"],
-                    "concepto" => "maniobras",
-                    "monto" => $row["maniobras"],
-                    "tipo" =>  $row["pagoMan"]
-                ];
-            }
-            if ($row["transito"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folTransito"],
-                    "concepto" => "transito",
-                    "monto" => $row["transito"],
-                    "tipo" =>  $row["pagoTra"]
-                ];
-            }
-            if ($row["mantenimiento"] != "0.00") {
-                $data[] = [
-                    "folio" => $row["folMante"],
-                    "concepto" => "mantenimiento",
-                    "monto" => $row["mantenimiento"],
-                    "tipo" =>  $row["pagoMto"]
-                ];
-            }
+            $dispersiones = array_merge($dispersiones, $gasto["dispersiones"]);
         }
 
         //Response
-        if (empty($data)) {
+        if (empty($gastos)) {
             respuesta(200, 404, "Este viaje no tiene depositos", []);
         } else {
             $payload = [
@@ -138,11 +123,11 @@ if (empty($faltantes)) {
                 "casetasTotal" => $casetas,
                 "alimentosTotal" => $alimentos,
                 "comisionTotal" => $comision,
-                "estadiasTotal" => $estadias,
+                "estadiasTotal" => 0,
                 "maniobrasTotal" => $maniobras,
-                "transitoTotal" => $transito,
-                "mantenimientoTotal" => $mantenimiento,
-                "depositos" => $data
+                "transitoTotal" => 0,
+                "mantenimientoTotal" => 0,
+                "depositos" => $dispersiones
             ];
             respuesta(200, 200, "Respuesta exitosa", $payload);
         }

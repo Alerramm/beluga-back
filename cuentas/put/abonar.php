@@ -59,7 +59,7 @@ if (empty($faltantes)) {
             $updateEstatus =  "UPDATE operaciones SET montoPagado='$montoUpdate' WHERE id = $id;";
 
             if ($conexion->query($updateEstatus) === TRUE) {
-                $rowActualizado = file_get_contents("http://www.misistema.mx/belugaQA/Finanzas/endpoints/cuentas/get/facturas.php");
+                $rowActualizado = file_get_contents("http://www.misistema.mx/beluga/Finanzas/endpoints/cuentas/get/facturas.php");
                 respuesta(200, 200,  "Respuesta exitosa", json_decode($rowActualizado));
             } else {
                 $payload = ["sql" => "Error: " . $updateEstatus . "<br>" . $conexion->error];

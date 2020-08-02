@@ -7,7 +7,7 @@ $mysqli = mysqli_init();
 $conexion = mysqli_connect($_SESSION['HOST'], $_SESSION['USER'], $_SESSION['PASS'], $_SESSION['DBNAME']);
 //$conexion = mysqli_connect("localhost", "root", "", "dbo574183143");
 //Query para obtener clientes
-$consulta =  "SELECT DISTINCT (toneladas)  FROM unidades";
+$consulta =  "SELECT DISTINCT (ton) as toneladas  FROM unidades";
 $toneladas =  mysqli_query($conexion, $consulta);
 
 while ($row = $toneladas->fetch_array(MYSQLI_ASSOC)) {
