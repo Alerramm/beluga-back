@@ -8,7 +8,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 //const 
 $faltantes = [];
-
+$fe1=date("Y-m-d");
 //datos Request
 $datos = json_decode(file_get_contents('php://input'), true);
 $tipo = $datos["tipo"];
@@ -87,7 +87,22 @@ if (empty($faltantes)) {
             if ($conexion->query($updateEstatus) === TRUE) {
                 $viajesActualizados =  mysqli_query($conexion, $consulta);
                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
-
+            
+                $consulta =  "SELECT destino,operador FROM viajes where id = '$idViaje' " ;
+                $consultaresponse =  mysqli_query($conexion, $consulta);
+                $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                $destin = $row2["destino"];
+                $oper = $row2["operador"];
+                $secobra='';
+                if($cobroCliente > 0){$secobra ='Si';  }
+          
+                $preAux='PRE'.$tipo;
+                
+             $insertDesgloseAuth ="INSERT INTO desgloseGastosAut(fecha,operador,destino,viaje,idViaje,".$tipo.",observacion,status,solicita,".$preAux.",seCobra)
+                 VALUES ('$fe1', '$oper','$destin','$idViaje','$idViaje','$montoSolicitado','$observacion','Adicional','$autoriza','$cobroCliente','$secobra')";
+             
+               $conexion->query($insertDesgloseAuth); 
+          
 
                 $payload = ["sql" => "Exito Update record successfully", "id" => $row["id"]];
 
