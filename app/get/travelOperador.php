@@ -25,9 +25,9 @@ function respuesta($codehttp, $code, $mensaje, $payload)
         ],
         "payload" => $payload
     ];
+
     echo json_encode($dataFinal);
 }
-
 //Validacion de Datos
 if ($operador  == "") {
     array_push($faltantes, 'idViaje');
@@ -49,14 +49,9 @@ if (empty($faltantes)) {
         $consulta = "SELECT *  FROM viajes where operador = '$operador' and estatus not in ('Finalizado', 'Pendiente', 'Facturacion')";
         $viaje = mysqli_query($conexion, $consulta);
         while ($row = $viaje->fetch_array(MYSQLI_ASSOC)) {
-            $payload[] = [
-                "id" => $row["id"],
-                "cliente" => $row["cliente"],
-                "fechaCarga" => $row["fecha_carga"],
-                "unidad" => $row["unidad"],
-                "destino" => $row["destino"],
-                "ruta" => $row["ruta"],
-                "estatus" => $row["estatus"]
+            $payload = [
+                "idViaje" => $row["id"],
+                "nombre" => $operador
             ];
         }
 

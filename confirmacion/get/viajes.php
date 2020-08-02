@@ -128,13 +128,14 @@ if (empty($faltantes)) {
 
         //Consulta viajes
         $consultaViajes =
-            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo, v.distancia as kilometraje, m.rendimiento
+            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo, v.distancia as kilometraje, m.rendimiento, tp.nombre as tipoPrecio 
             FROM viajes v 
             INNER JOIN empresa_viaje ev on v.id = ev.idViaje
             INNER JOIN tramos t on v.id = t.idViaje
             INNER JOIN empresa e on ev.idEmpresa = e.id
             INNER JOIN precio_viaje p on p.idViaje = v.id
             INNER JOIN metricas_precio m on p.idMetricasPrecio = m.id
+            INNER JOIN tipo_precio tp on p.idTipoPrecio = tp.id
             where t.tramo = 1
             and v.estatus = 'Confirmado' 
             ORDER BY v.id DESC";
