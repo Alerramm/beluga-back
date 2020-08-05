@@ -128,7 +128,7 @@ if (empty($faltantes)) {
 
         //Consulta viajes
         $consultaViajes =
-            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo, v.distancia as kilometraje, m.rendimiento, tp.nombre as tipoPrecio 
+            "SELECT v.id as idViaje, v.estatus_app as estatus_operador, ev.estatus as estatus_empresa, v.cliente, t.entrega as direccion_carga, v.fecha_carga, e.nombre as empresa, v.operador, v.unidad, v.ruta as entrega, v.destino, v.fecha_entrega, p.precio, v.casetas, m.gasto_premium as porcentaje_gasto, p.idMetricasPrecio, v.fecha_salida, v.fecha_disponibilidad, v.unidad_tipo, v.unidad_modelo, v.distancia as kilometraje, m.rendimiento, tp.nombre as tipoPrecio 
             FROM viajes v 
             INNER JOIN empresa_viaje ev on v.id = ev.idViaje
             INNER JOIN tramos t on v.id = t.idViaje

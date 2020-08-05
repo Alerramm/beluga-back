@@ -81,7 +81,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Consulta viajes Grupo 1
-        $consultaViaje = "SELECT v.distancia, v.diesel, m.rendimiento, m.viaticos, m.comision, v.casetas
+        $consultaViaje = "SELECT v.distancia, v.diesel, m.rendimiento, m.viaticos, m.comision, v.casetas, p.precio, p.idMetricasPrecio
         FROM viajes v 
         INNER JOIN precio_viaje p on p.idViaje = v.id
         INNER JOIN metricas_precio m on p.idMetricasPrecio = m.id
@@ -135,14 +135,15 @@ if (empty($faltantes)) {
         ];
 
 
-
+        $totalGastos = 0;
         foreach ($datosgastos as &$datos2) {
             //const 
             $faltantes = [];
             //datos Request
             $tipo = $datos2["tipo"];
             $presupuesto = $datos2["presupuesto"];
-            $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Presupuesto')";
+            $totalGastos = $totalGastos + round($presupuesto, -1);
+            $insertDesgloseAuth2 =  "INSERT INTO gastos(tipo,presupuesto,idViaje,estatus) VALUES ('$tipo', '$presupuesto', '$idViaje', 'Autorizacion')";
 
             if ($conexion->query($insertDesgloseAuth2) === TRUE) {
 
@@ -152,6 +153,22 @@ if (empty($faltantes)) {
                 $payload[] = ["sql" => "Error: " . "<br>" . $conexion->error];
             }
         }
+
+        $porcentajeGastos = 100;
+        if ($viajes["precio"] >= $totalGastos / 1.16) {
+            $porcentajeGastos = ($totalGastos / 1.16 / $viajes["precio"]) * 100;
+        }
+
+        $idMetricasPrecio = $viajes["idMetricasPrecio"];
+        $updateMetricas =  "UPDATE metricas_precio set gasto_premium = '$porcentajeGastos' where id = $idMetricasPrecio";
+
+        if ($conexion->query($updateMetricas) === TRUE) {
+            $last_id = $conexion->insert_id;
+            $payload["Metricas"] = " Exito New Travel record created successfully " . $last_id;
+        } else {
+            $payload["Metricas"] = ["sql" => "Error: " . "<br>" . $conexion->error];
+        }
+
         //Response
         if (empty($payload)) {
             respuesta(200, 404, "No se agregaron gastos", []);
