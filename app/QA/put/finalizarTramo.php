@@ -92,12 +92,12 @@ if (empty($faltantes)) {
             } else {
                 if ($tramoFinal) {
                     //Update
-                    $updateEstatus =  "UPDATE tramos SET estatus='Finalizado' WHERE id = $idTramo;";
+                    $updateEstatus =  "UPDATE tramos SET fecha='$fecha' WHERE id = $idTramo;";
                     if ($conexion->query($updateEstatus) === TRUE) {
                         $tramoActualizado =  mysqli_query($conexion, $consulta);
                         $rowActualizado = mysqli_fetch_array($tramoActualizado, MYSQLI_ASSOC);
                         //Update
-                        $updateViajeEstatus =  "UPDATE viajes SET estatus='Facturacion',  fecha_disponibilidad='$fecha'  WHERE id = $idViaje";
+                        $updateViajeEstatus =  "UPDATE viajes SET estatus_app='Evidencia', fecha_disponibilidad='$fecha'  WHERE id = $idViaje";
                         if ($conexion->query($updateViajeEstatus) === TRUE) {
                             $payload = ["sql" => "Exito Update record successfully", "idTramo" => $rowActualizado["id"], "estatus" => $rowActualizado["estatus"], "cajas" => $rowActualizado["cajas"], "viajeEstatus" => "Finalizado"];
 
@@ -111,18 +111,6 @@ if (empty($faltantes)) {
                         respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-FTUPD", $payload);
                     }
                 } else {
-                    $consultaTramoEntregaFinal = "SELECT COUNT(1) FROM tramos where idViaje = $idViaje and estatus = 'Pendiente' and
-                    (Select COUNT(1) from viajes where id = $idViaje and redondo = true) > 0;";
-                    $tramoEntregaFinal =  mysqli_query($conexion, $consultaTramoEntregaFinal);
-                    $tramoEntregaFinalR = mysqli_fetch_array($tramoEntregaFinal, MYSQLI_ASSOC);
-                    if ($tramoEntregaFinalR["COUNT(1)"] == 2) {
-                        $updateEstatusViaje =  "UPDATE viajes SET estatus='En regreso' WHERE id = $idViaje;";
-                        if ($conexion->query($updateEstatusViaje) === TRUE) {
-                            $payloadUpdateViaje = ["TramoEntregaFinal" => $tramoEntregaFinalR];
-                        } else {
-                            $payloadUpdateViaje = ["TramoEntregaFinal" => "Error: " . $updateEstatusViaje . "<br>" . $conexion->error];
-                        }
-                    }
 
                     $tramoFin = true;
                     foreach ($embarques as &$embarque) {
@@ -139,6 +127,18 @@ if (empty($faltantes)) {
                                 if ($conexion->query($updateEmbarque) === TRUE) {
 
                                     $tramos[] = ["sql" => "Exito Update record successfully", "cajas" => $rowESQL["cajas"], "embarque" => $rowESQL["numero"], "estatus" => "Finalizado"];
+                                    $consultaTramoEntregaFinal = "SELECT COUNT(1) FROM tramos where idViaje = $idViaje and estatus = 'Pendiente' and
+                    (Select COUNT(1) from viajes where id = $idViaje and redondo = true) > 0;";
+                                    $tramoEntregaFinal =  mysqli_query($conexion, $consultaTramoEntregaFinal);
+                                    $tramoEntregaFinalR = mysqli_fetch_array($tramoEntregaFinal, MYSQLI_ASSOC);
+                                    if ($tramoEntregaFinalR["COUNT(1)"] == 2) {
+                                        $updateEstatusViaje =  "UPDATE viajes SET estatus='En regreso' WHERE id = $idViaje;";
+                                        if ($conexion->query($updateEstatusViaje) === TRUE) {
+                                            $payloadUpdateViaje = ["TramoEntregaFinal" => $tramoEntregaFinalR];
+                                        } else {
+                                            $payloadUpdateViaje = ["TramoEntregaFinal" => "Error: " . $updateEstatusViaje . "<br>" . $conexion->error];
+                                        }
+                                    }
                                 } else {
                                     $tramos[] = ["sql" => "Error: " . $updateEmbarque . "<br>" . $conexion->error];
                                 }

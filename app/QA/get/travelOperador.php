@@ -46,7 +46,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Consulta viajes
-        $consulta = "SELECT *  FROM viajes where operador = '$operador' and estatus not in ('Finalizado', 'Pendiente', 'Facturacion')";
+        $consulta = "SELECT *  FROM viajes where operador = '$operador' and estatus in ('Confirmado', 'Gastos', 'En proceso', 'En proceso cliente', 'En trayecto','En regreso') and estatus_app not in ('Evidencia')";
         $viaje = mysqli_query($conexion, $consulta);
         while ($row = $viaje->fetch_array(MYSQLI_ASSOC)) {
             $payload = [
