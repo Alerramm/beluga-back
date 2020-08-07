@@ -44,7 +44,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Analisis de la informacion
-        $consulta =  "SELECT idTIpoADecuacion, nombreUnidad FROM unidadesNueva where idTIpoADecuacion = '$idTIpoADecuacion' ";
+        $consulta =  "SELECT * FROM unidadesNueva where idTIpoADecuacion = '$idTIpoADecuacion' ";
         $selectUnidades =  mysqli_query($conexion, $consulta);
         while ($row = $selectUnidades->fetch_array(MYSQLI_ASSOC)) {
             $Unidades[] = $row;

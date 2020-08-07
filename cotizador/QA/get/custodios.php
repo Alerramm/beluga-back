@@ -33,50 +33,63 @@ if ($km == "") {
 }
 
 if (empty($faltantes)) {
+    $tiempo = round(($km / 60), 0);
 
-    if($km<151){
-        $total = [
-            "total" => 1500
-        ];
-
-    }elseif ($km<301){
-        $total = [
-            "total" => 2500
-        ];
-    
-    }else{
-        respuesta(200, 204, "Servicio no disponible", []);
+    switch (true) {
+        case $tiempo <= 4:
+            $total = 1850;
+            break;
+        case $tiempo == 5:
+            $total = 3700;
+            break;
+        case $tiempo == 6:
+            $total = 2950;
+            break;
+        case $tiempo == 7:
+            $total = 5000;
+            break;
+        case $tiempo == 8:
+            $total = 5650;
+            break;
+        case $tiempo == 9:
+            $total = 6500;
+            break;
+        case $tiempo == 10:
+            $total = 7000;
+            break;
+        case $tiempo == 11:
+            $total = 7600;
+            break;
+        case $tiempo == 12:
+            $total = 8250;
+            break;
+        case $tiempo == 13:
+            $total = 8900;
+            break;
+        case $tiempo == 14:
+            $total = 9550;
+            break;
+        case $tiempo > 14 || $tiempo <= 20:
+            $total = 13450;
+            break;
+        default:
+            $total = 0;
+            break;
     }
 
-    // //Conexion a base de datos
-    // $mysqli = mysqli_init();
-    // $conexion = mysqli_connect($_SESSION['HOST'], $_SESSION['USER'], $_SESSION['PASS'], $_SESSION['DBNAME']);
-    // //Validacion conexion con bd
-    // if (!$conexion) {
-    //     respuesta(500, 500, "Hay un error con el servidor. Llama a central Error-CABD1", []);
-    // } else {
-    //     //configuracon db
-    //     mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
-    //     mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
+    if ($tiempo > 20) {
+        $total = 13450 + (($tiempo - 20) * 200);
+    }
 
-    //     //Analisis de la informacion
-    //     $consulta =  "SELECT nombreUnidad FROM unidadesNueva where importe = '$importe' ";
-
-    //     $selectUnidades =  mysqli_query($conexion, $consulta);
-    //     while ($row = $selectUnidades->fetch_array(MYSQLI_ASSOC)) {
-    //         $Unidades[] = $row;
-    //     }
-
-         //Response
-         if (empty($total)) {
-             respuesta(200, 404, "No es una cantidad Valida", []);
-         } else {
-             respuesta(200, 200, "Respuesta exitosa", $total);
-         }
-     
-
-
-
+    //Response
+    if ($total == 0) {
+        respuesta(200, 404, "Servicio no disponible", []);
+    } else {
+        $payload =  [
+            "total" => $total
+        ];
+        respuesta(200, 200, "Respuesta exitosa", $payload);
+    }
 } else {
     $payload = ["Faltantes" => $faltantes];
     respuesta(400, 400, "Hay un error con el servidor. Llama a central Error-CARE1", $payload);
