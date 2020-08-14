@@ -352,3 +352,10 @@ ALTER TABLE `tipo_precio`
 
 ALTER TABLE `tipo_precio`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+
+  CREATE TABLE clientesImagen (
+idCliente varchar (30),
+imagen varchar(600)   
+    
+);
