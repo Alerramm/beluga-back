@@ -92,6 +92,17 @@ if (empty($faltantes)) {
                 }
             }
 
+            if ($tramo == 1 && $estatus == 'Finalizado') {
+                $updateEstatusViaje =  "UPDATE viajes SET estatus = 'En trayecto' WHERE id = '$idViaje'";
+
+                if ($conexion->query($updateEstatusViaje) === TRUE) {
+
+                    $payload[] = ["sqlViaje" => "Exito Update record successfully " . $idViaje];
+                } else {
+                    $payload[] = ["sqlViaje" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                }
+            }
+
             //Insert
             $updateEstatus =  "UPDATE tramos SET estatus = '$estatus' WHERE id = $idTramo";
 

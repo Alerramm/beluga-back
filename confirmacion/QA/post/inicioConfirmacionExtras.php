@@ -131,6 +131,18 @@ if (empty($faltantes)) {
             [
                 "tipo" => "Externo",
                 "presupuesto" => 0
+            ],
+            [
+                "tipo" => "Transito",
+                "presupuesto" => 0
+            ],
+            [
+                "tipo" => "Estadias",
+                "presupuesto" => 0
+            ],
+            [
+                "tipo" => "Mantenimiento",
+                "presupuesto" => 0
             ]
         ];
 

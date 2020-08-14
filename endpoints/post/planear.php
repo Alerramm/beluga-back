@@ -236,12 +236,20 @@ if (empty($faltantes)) {
 
 
 
+                    $consulta =  "SELECT * FROM adecuacion where nombreAdecuacion = '$tipoDeAdecucacion' ";
+                    $consultaresponse =  mysqli_query($conexion, $consulta);
+                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
+                    $tipoDeAdecuacion1 = $row2["nombreAdecuacion"];
+                    $idTipodeAdecuacion = $row2["id"];
+
+                    if (empty($tipoDeAdecuacion1)) {
+                        $tipoDeAdecuacion1 = $tipoDeAdecucacion;
+                    }
 
 
 
 
-
-                    $consulta =  "SELECT * FROM unidadesNueva where idTipoUnidad = '$tipoDeUnidad' ";
+                    $consulta =  "SELECT * FROM unidadesNueva where nombreUnidad = '$tipoDeUnidad' and idTipoADecuacion = '$idTipodeAdecuacion'";
                     $consultaresponse =  mysqli_query($conexion, $consulta);
                     $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
                     $tonelaje = $row2["nombreUnidad"];
@@ -254,14 +262,7 @@ if (empty($faltantes)) {
 
 
 
-                    $consulta =  "SELECT * FROM adecuacion where idTIpoADecuacion = '$tipoDeAdecucacion' ";
-                    $consultaresponse =  mysqli_query($conexion, $consulta);
-                    $row2 = mysqli_fetch_array($consultaresponse, MYSQLI_ASSOC);
-                    $tipoDeAdecuacion1 = $row2["nombreAdecuacion"];
 
-                    if (empty($tipoDeAdecuacion1)) {
-                        $tipoDeAdecuacion1 = $tipoDeAdecucacion;
-                    }
 
 
                     //Termina Enrollamiento

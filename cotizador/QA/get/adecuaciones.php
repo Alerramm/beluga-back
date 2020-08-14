@@ -36,7 +36,7 @@ if (!$conexion) {
     mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
     //Analisis de la informacion
-    $consulta =  "SELECT idTIpoADecuacion, nombreAdecuacion FROM adecuacion WHERE idTipoADecuacion in (1,3)";
+    $consulta =  "SELECT idTIpoADecuacion, nombreAdecuacion FROM adecuacion WHERE idTipoADecuacion in (1,2,3,4,5)";
 
     $selectAdecuaciones =  mysqli_query($conexion, $consulta);
     while ($row = $selectAdecuaciones->fetch_array(MYSQLI_ASSOC)) {
