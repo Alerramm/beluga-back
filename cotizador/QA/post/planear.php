@@ -232,14 +232,18 @@ if (empty($faltantes)) {
             $idCliente =  registro($conexion, $datos_cliente);
 
             $payload["idCliente"] = $idCliente;
+            $payload["user"] = $datos_cliente["cliente"]["correo"];
+            $payload["password"] = $datos_cliente["cliente"]["password"];
         } else {
-            $clienteBD =  consulta($conexion, "SELECT A.id, A.* FROM usuarios A INNER JOIN clientes B ON A.id = B.idUsuario WHERE A.id=$idCliente");
+            $clienteBD =  consulta($conexion, "SELECT A.* FROM usuarios A INNER JOIN clientes B ON A.id = B.idUsuario WHERE A.id=$idCliente");
             if (empty($clienteBD)) {
                 $payload = ["idCliente" => $idCliente];
                 $registroOk = false;
             } else {
-                $idCliente = $clienteBD["id"];
+                $idCliente = $clienteBD[0]["id"];
                 $payload["idCliente"] = $idCliente;
+                $payload["user"] = $clienteBD[0]["usuario"];
+                $payload["password"] = $clienteBD[0]["password"];
             }
         }
         if ($registroOk) {

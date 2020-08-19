@@ -92,6 +92,18 @@ if (empty($faltantes)) {
                 }
             }
 
+            if (count($tramosDB) - 1 == $tramo  && $estatus == 'Finalizado') {
+                $updateEstatusViaje =  "UPDATE viajes SET estatus = 'En regreso' WHERE id = '$idViaje'";
+
+
+                if ($conexion->query($updateEstatusViaje) === TRUE) {
+
+                    $payload[] = ["sqlViaje" => "Exito Update record successfully " . $idViaje];
+                } else {
+                    $payload[] = ["sqlViaje" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
+                }
+            }
+
             if ($tramo == 1 && $estatus == 'Finalizado') {
                 $updateEstatusViaje =  "UPDATE viajes SET estatus = 'En trayecto' WHERE id = '$idViaje'";
 

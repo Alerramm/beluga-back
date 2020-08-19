@@ -53,9 +53,6 @@ function consulta($conexion, $consulta)
 if ($km == "") {
     array_push($faltantes, 'km');
 }
-if ($casetas == "") {
-    array_push($faltantes, 'casetas');
-}
 if ($idTipoAdecuacion == "") {
     array_push($faltantes, 'idTipoAdecuacion');
 }

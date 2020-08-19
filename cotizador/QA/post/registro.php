@@ -67,7 +67,7 @@ if (empty($faltantes)) {
         mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
         //Analisis de la informacion
-        $consulta =  "SELECT * FROM usuarios A INNER JOIN clientes B ON A.id = B.idUsuario WHERE A.usuario='$correo' and A.password='$password' and A.perfil='CLIENTE'";
+        $consulta =  "SELECT * FROM usuarios A INNER JOIN clientes B ON A.id = B.idUsuario WHERE A.usuario='$correo' and A.perfil='CLIENTE'";
         $usuariosDB =  mysqli_query($conexion, $consulta);
         $row = mysqli_fetch_array($usuariosDB, MYSQLI_ASSOC);
 

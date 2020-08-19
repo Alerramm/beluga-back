@@ -80,30 +80,38 @@ if (empty($faltantes)) {
             case 'image':
                 $updateEstatus =  "UPDATE clientesImagen SET imagen='$image' WHERE idCliente = '$idCliente'";
                 break;
-            }
-
-          
-
-        
-
-            if ($conexion->query($updateEstatus) === TRUE) {
-                 $viajesActualizados =  mysqli_query($conexion, $updateEstatus);
-                 $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC); 
-
-                $payload = ["updateEstatus" => "Cliente Actualizado", "id" => $idCliente];
-           //     $payload = ["Mensaje" => "Cliente Actualizado", "id" => $idCliente];
+            default:
+                $updateEstatus =  "UPDATE clientesImagen SET 
+                                razonSocial='$razonSocial', 
+                                rfc='$rfc', 
+                                nombre='$nombre',
+                                email='$email', 
+                                imagen='$image'  
+                                WHERE idCliente = '$idCliente'";
+                break;
+        }
 
 
 
 
 
+        if ($conexion->query($updateEstatus) === TRUE) {
+            $viajesActualizados =  mysqli_query($conexion, $updateEstatus);
+            $rowActualizado = mysqli_fetch_array($viajesActualizados, MYSQLI_ASSOC);
 
-                respuesta(200, 200,  "Respuesta exitosa", $payload);
-            } else {
-                $payload = ["sql" => "Error: " . $payload . "<br>" . $conexion->error];
-                respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-TAUPD", $payload);
-            }
-       
+            $payload = ["updateEstatus" => "Cliente Actualizado", "id" => $idCliente];
+            //     $payload = ["Mensaje" => "Cliente Actualizado", "id" => $idCliente];
+
+
+
+
+
+
+            respuesta(200, 200,  "Respuesta exitosa", $payload);
+        } else {
+            $payload = ["sql" => "Error: " . $payload . "<br>" . $conexion->error];
+            respuesta(500, 500,  "Hay un error con el servidor. Llama a central Error-TAUPD", $payload);
+        }
     }
 } else {
     $payload = ["Faltantes" => $faltantes];

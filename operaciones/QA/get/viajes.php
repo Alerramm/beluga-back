@@ -48,6 +48,33 @@ function consulta($conexion, $consulta)
     return $respuesta;
 }
 
+function consultaEmbarques($conexion, $consulta, $row)
+{
+    //Consulta 
+    $numRechazos = 0;
+    $query = mysqli_query($conexion, $consulta);
+    $row_cntEmbarque = $query->num_rows;
+    if ($row_cntEmbarque > 0) {
+        while ($rowE = $query->fetch_array(MYSQLI_ASSOC)) {
+            $rowE["key"] = $rowE["id"];
+            if ($rowE["cajas_rechazadas"] > 0) {
+                $numRechazos = $numRechazos + 1;
+                $rechazos = consulta($conexion, "SELECT b.*, e.cajas_rechazadas, e.estatus, e.idTramo as idEmbarqueTramo FROM bitacora b INNER JOIN embarques e ON b.idEmbarque = e.id WHERE b.idEmbarque = " . $rowE["id"] . " AND b.tipo = 'Rechazo'");
+            }
+            $respuesta[] = $rowE;
+        }
+        $row["numRechazos"] = $numRechazos;
+        $row["rechazos"] = $rechazos;
+        $row["embarques"] = $respuesta;
+    } else {
+        $row["numRechazos"] = 0;
+        $row["embarques"] = [];
+        $row["rechazos"] = [];
+    }
+
+    return $row;
+}
+
 function consultaTramos($conexion, $consulta)
 {
     //Consulta 
@@ -62,7 +89,13 @@ function consultaTramos($conexion, $consulta)
             $dateT = new DateTime($row["fecha"]);
             $row["fecha"] = $dateT->format('Y-m-d H:i');
             $row["casetas"] = consulta($conexion, "SELECT * from casetas WHERE idTramo = $idTramo");
-            $row["embarques"] = consulta($conexion, "SELECT id, numero, cajas, cajas_entregadas, cajas_rechazadas, estatus as estatusEmbarque  FROM embarques where idTramo = $idTramo");
+            $row = consultaEmbarques($conexion, "SELECT id, numero, cajas, cajas_entregadas, cajas_rechazadas, estatus as estatusEmbarque  FROM embarques where idTramo = $idTramo", $row);
+            $row["incidencias"] = consulta($conexion, "SELECT * FROM incidencias WHERE idTramo = " . $row["idTramo"]);
+            if (empty($row["incidencias"])) {
+                $row["numIncidencias"] = 0;
+            } else {
+                $row["numIncidencias"] = count($row["incidencias"]);
+            }
             $respuesta[] = $row;
         }
     } else {
@@ -194,7 +227,16 @@ if (empty($faltantes)) {
                 INNER JOIN empresa e on ev.idEmpresa = e.id 
                 INNER JOIN precio_viaje pv on v.id = pv.idViaje
                 INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
-                where v.estatus in ( 'Evidencia completa', 'Evidencia incompleta') ORDER BY v.id DESC;";
+                where v.estatus in ( 'En regreso', 'Evidencia completa', 'Evidencia incompleta') ORDER BY v.id DESC;";
+                break;
+            case "En regreso":
+                $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  
+                    FROM viajes v
+                    INNER JOIN empresa_viaje ev on v.id = ev.idViaje
+                    INNER JOIN empresa e on ev.idEmpresa = e.id 
+                    INNER JOIN precio_viaje pv on v.id = pv.idViaje
+                    INNER JOIN tipo_precio tp on pv.idTipoPrecio = tp.id
+                    where v.estatus in ( 'En regreso') ORDER BY v.id DESC;";
                 break;
             case "Evidencia completa":
                 $consulta = "SELECT  v.id as idViaje, e.nombre as empresa, v.fecha_carga, v.cliente, v.unidad, v.operador, v.destino as destinoViaje, v.ruta, v.fecha_entrega, v.fecha_disponibilidad, v.tiempo, v.distancia as distanciaViaje, pv.precio, v.estatus as estatusViaje, tp.nombre as tipoPrecio  

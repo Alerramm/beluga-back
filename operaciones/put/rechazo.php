@@ -72,47 +72,14 @@ if (empty($faltantes)) {
         if (empty($row)) {
             respuesta(200, 404, "No hay registros con este ID de tramo" . $id, []);
         } else {
-            $idViaje = $row[0]["idviaje"];
-            $tramo = $row[0]["tramo"];
 
-            $tramosDB = consulta($conexion, "SELECT * FROM tramos WHERE idviaje = $idViaje");
+            $updateEmbarques =  "UPDATE embarques SET estatus = 'Pendiente', cajas_rechazadas = 0, cajas_entregadas = 0 WHERE idTramo = '$idTramo'";
 
-            if (count($tramosDB) == $tramo) {
-                $updateEstatusViaje =  "UPDATE viajes SET estatus = 'Evidencia completa' WHERE id = '$idViaje'";
-                if ($estatus == 'Bloqueado') {
-                    $updateEstatusViaje =  "UPDATE viajes SET estatus = 'Evidencia incompleta' WHERE id = '$idViaje'";
-                }
+            if ($conexion->query($updateEmbarques) === TRUE) {
 
-
-                if ($conexion->query($updateEstatusViaje) === TRUE) {
-
-                    $payload[] = ["sqlViaje" => "Exito Update record successfully " . $idViaje];
-                } else {
-                    $payload[] = ["sqlViaje" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                }
-            }
-
-            if (count($tramosDB) - 1 == $tramo  && $estatus == 'Finalizado') {
-                $updateEstatusViaje =  "UPDATE viajes SET estatus = 'En regreso' WHERE id = '$idViaje'";
-
-
-                if ($conexion->query($updateEstatusViaje) === TRUE) {
-
-                    $payload[] = ["sqlViaje" => "Exito Update record successfully " . $idViaje];
-                } else {
-                    $payload[] = ["sqlViaje" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                }
-            }
-
-            if ($tramo == 1 && $estatus == 'Finalizado') {
-                $updateEstatusViaje =  "UPDATE viajes SET estatus = 'En trayecto' WHERE id = '$idViaje'";
-
-                if ($conexion->query($updateEstatusViaje) === TRUE) {
-
-                    $payload[] = ["sqlViaje" => "Exito Update record successfully " . $idViaje];
-                } else {
-                    $payload[] = ["sqlViaje" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
-                }
+                $payload[] = ["sqlEmbaruqes" => "Exito Update record successfully " . $idTramo];
+            } else {
+                $payload[] = ["sqlEmbaruqes" => "Error: " . $updateEstatus . "<br>" . $conexion->error];
             }
 
             //Insert
