@@ -11,7 +11,7 @@ mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
 mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
 //Query para obtener clientes
-$consulta = "SELECT * FROM `viajes_guardados` WHERE cliente = '$cliente'";
+$consulta = "SELECT * FROM `viajes_guardados` WHERE cliente = '$cliente'  AND estatus = 'Activo'";
 $trips =  mysqli_query($conexion, $consulta);
 while ($row = $trips->fetch_array(MYSQLI_ASSOC)) {
     $data1 = [];
@@ -28,6 +28,7 @@ while ($row = $trips->fetch_array(MYSQLI_ASSOC)) {
         $data2[] = $row3;
     }
     $dataFinal[] = [
+        "id" => $row["id"],
         "name" => $row["nombre"],
         "travel" => $data1,
         "tracts" => $data2

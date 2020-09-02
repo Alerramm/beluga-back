@@ -284,7 +284,7 @@ if (empty($faltantes)) {
                         if ($saveTrip == 1) {
 
                             $insertTrip = "INSERT INTO viajes_guardados VALUES 
-                            (null,'$tripName','$nombreCliente','$last_id')";
+                            (null,'$tripName','$nombreCliente','$last_id', 'Activo')";
 
                             if ($conexion->query($insertTrip) === true) {
 
@@ -576,7 +576,7 @@ if (empty($faltantes)) {
                     if ($saveTrip == 1) {
 
                         $insertTrip = "INSERT INTO viajes_guardados VALUES 
-                            (null,'$tripName','$consultaresponseDato','$last_id')";
+                            (null,'$tripName','$consultaresponseDato','$last_id', 'Activo')";
 
                         if ($conexion->query($insertTrip) === true) {
 

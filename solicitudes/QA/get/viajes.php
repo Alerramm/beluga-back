@@ -86,7 +86,7 @@ function consultaViajes($conexion, $consulta, $grupo)
                 $row["adicionales"] == null
             ) {
 
-                $row["adicionales"] = [
+                $row["adicionales"][] = [
                     "seguro" => "0",
                     "maniobra" => "0",
                     "seguridad" => "0",
@@ -141,7 +141,7 @@ if (empty($faltantes)) {
         INNER JOIN tipo_precio s on p.idTipoPrecio = s.id  
         where t.tramo = 1 and v.estatus = 'Solicitud' 
         and p.horario_laboral = true 
-        and (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) > 12";
+        and (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) > 12 ORDER BY v.id DESC";
 
         /* $consultaGrupo1PremiumPospago = "SELECT v.id, v.cliente, t.entrega as direccion_carga, v.fecha_carga, v.unidad_tipo as tipo_adecuacion, v.unidad_modelo as tipo_unidad, v.ruta as entrega, v.destino, v.fecha_entrega, s.nombre as servicio, p.precio, p.fecha as fecha_registro, v.operador, v.estatus_app from viajes v INNER JOIN precio_viaje p on p.idViaje = v.id INNER JOIN tramos t on t.idViaje = v.id INNER JOIN tipo_precio s on p.idTipoPrecio = s.id  where t.tramo = 1 and v.estatus = 'Solicitud' and p.horario_laboral = true and (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) > 12";
 
@@ -158,7 +158,7 @@ if (empty($faltantes)) {
         where t.tramo = 1 
         and v.estatus = 'Solicitud' 
         and (p.horario_laboral = false 
-        or (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) < 12) ";
+        or (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) < 12) ORDER BY v.id DESC";
         /* 
         $consultaGrupo2PremiumPospago = "SELECT v.id, v.cliente, t.entrega as direccion_carga, v.fecha_carga, v.unidad_tipo as tipo_adecuacion, v.unidad_modelo as tipo_unidad, v.ruta as entrega, v.destino, v.fecha_entrega, s.nombre as servicio, p.precio, p.fecha as fecha_registro, v.operador, v.estatus_app from viajes v INNER JOIN precio_viaje p on p.idViaje = v.id INNER JOIN tramos t on t.idViaje = v.id INNER JOIN tipo_precio s on p.idTipoPrecio = s.id  where t.tramo = 1 and v.estatus = 'Solicitud' and (p.horario_laboral = false or (SELECT TIMESTAMPDIFF(HOUR,(p.fecha),(v.fecha_carga))) < 12) ";
 

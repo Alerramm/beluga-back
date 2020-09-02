@@ -11,26 +11,27 @@ mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
 mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
 //Query para obtener clientes
-$consulta = "SELECT * FROM `viajes_guardados` WHERE cliente = '$cliente' AND estatus = 'Activo'";
+$consulta = "SELECT v.base as base_operaciones, v.* FROM `viajes` v WHERE v.estatus = 'Asignacion'";
 $trips =  mysqli_query($conexion, $consulta);
 while ($row = $trips->fetch_array(MYSQLI_ASSOC)) {
     $data1 = [];
     $data2 = [];
-    $idViaje = $row["idViaje"];
-    $consultaViaje = "SELECT base from viajes where id = $idViaje";
-    $viaje = mysqli_query($conexion, $consultaViaje);
-    while ($row2 = $viaje->fetch_array(MYSQLI_ASSOC)) {
-        $data1[] = $row2;
-    }
-    $consultaTramos =  "SELECT origen, entrega, waypoints FROM tramos where idViaje = $idViaje";
+    $idViaje = $row["id"];
+    $cliente = $row["cliente"];
+    $consultaTramos =  "SELECT * FROM tramos where idViaje = $idViaje";
     $tramos = mysqli_query($conexion, $consultaTramos);
     while ($row3 = $tramos->fetch_array(MYSQLI_ASSOC)) {
         $data2[] = $row3;
+        $cont = 0;
+        $domCarga = $row3["entrega"];
+        if ($cont == 0) {
+            $row["cliente"] = ["domCarga" => $domCarga, "nombre" => $cliente];
+            $cont = 1;
+        }
     }
     $dataFinal[] = [
-        "id" => $row["id"],
-        "name" => $row["nombre"],
-        "travel" => $data1,
+        "name" => $idViaje,
+        "travel" => [0 => $row],
         "tracts" => $data2
     ];
 }

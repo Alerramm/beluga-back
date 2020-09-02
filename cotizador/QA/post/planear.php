@@ -28,12 +28,13 @@ function insertTramo($conexion, $tramo, $idViaje, $numeroTramo)
 {
     $fecha = $tramo["fecha"];
     $origen = $tramo["origen"];
-    $destino = $tramo["destino"];
-    $entrega = $tramo["lugar_carga"];
+    $destino = "";
+    $entrega = $tramo["destino"];
     $tiempo = $tramo["tiempo"];
     $casetas = $tramo["casetas"];
     $distancia = $tramo["distancia"];
-    $query = "INSERT INTO tramos(idviaje, tramo, fecha, origen, destino, entrega, tiempo, casetas, distancia, estatus) VALUES ('$idViaje', '$numeroTramo', '$fecha', '$origen', '$destino', '$entrega', '$tiempo', '$casetas', '$distancia', 'Pendiente')";
+    $lugar_carga = $tramo["lugar_carga"];
+    $query = "INSERT INTO tramos(idviaje, tramo, fecha, origen, destino, entrega, tiempo, casetas, distancia, estatus, observaciones, waypoints) VALUES ('$idViaje', '$numeroTramo', '$fecha', '$origen', '$destino', '$entrega', '$tiempo', '$casetas', '$distancia', 'Pendiente', '$lugar_carga', '[]')";
     if ($conexion->query($query) === true) {
         $last_id = $conexion->insert_id;
         $payload["idTramo"] = $last_id;
@@ -295,6 +296,9 @@ if (empty($faltantes)) {
                 $payload["tramo" . $contTramo] = insertTramo($conexion, $tramo, $payload["idViaje"], $contTramo);
                 $contTramo = $contTramo + 1;
             }
+
+            //empres_viaje
+            $payload["empresaViaje"] = insert($conexion, "INSERT INTO empresa_viaje (idViaje,idEmpresa,estatus) VALUES ('$idViaje','1','Confirmado')");
 
             //servicios adiconales
             $payload["idServiciosAdicionales"] = insert($conexion, "INSERT INTO serviciosAdicionales (idViaje) VALUES ($idViaje)");

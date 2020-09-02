@@ -11,26 +11,20 @@ mysqli_query($conexion, "SET CHARACTER SET 'utf8'");
 mysqli_query($conexion, "SET SESSION collation_connection ='utf8_unicode_ci'");
 
 //Query para obtener clientes
-$consulta = "SELECT * FROM `viajes_guardados` WHERE cliente = '$cliente' AND estatus = 'Activo'";
+$consulta = "SELECT * FROM `viajes` WHERE estatus = 'Pendiente' and estatus_app = 'Asignacion'";
 $trips =  mysqli_query($conexion, $consulta);
 while ($row = $trips->fetch_array(MYSQLI_ASSOC)) {
     $data1 = [];
     $data2 = [];
     $idViaje = $row["idViaje"];
-    $consultaViaje = "SELECT base from viajes where id = $idViaje";
-    $viaje = mysqli_query($conexion, $consultaViaje);
-    while ($row2 = $viaje->fetch_array(MYSQLI_ASSOC)) {
-        $data1[] = $row2;
-    }
     $consultaTramos =  "SELECT origen, entrega, waypoints FROM tramos where idViaje = $idViaje";
     $tramos = mysqli_query($conexion, $consultaTramos);
     while ($row3 = $tramos->fetch_array(MYSQLI_ASSOC)) {
         $data2[] = $row3;
     }
     $dataFinal[] = [
-        "id" => $row["id"],
-        "name" => $row["nombre"],
-        "travel" => $data1,
+        "name" => $idViaje,
+        "travel" => $row,
         "tracts" => $data2
     ];
 }
